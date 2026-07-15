@@ -1,0 +1,11 @@
+{
+  "name": "@wedjan/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/gradle.mjs bootRun",
+    "build": "node scripts/gradle.mjs build -x test",
+    "test": "node scripts/gradle.mjs test",
+    "typecheck": "node scripts/gradle.mjs compileJava compileTestJava"
+  }
+}

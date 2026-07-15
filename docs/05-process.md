@@ -3,6 +3,15 @@
 Phased build order, launch strategy, and the metrics that gate each phase.
 Tiers come from [02-features.md](02-features.md); architecture from [03-implementation.md](03-implementation.md).
 
+> **Note (2026-07-15):** the *phase numbering below predates the 15-phase build system* and is
+> kept for its product sequencing and metrics. Execution follows
+> [06-build-playbook.md](06-build-playbook.md) / [15-phase-build-prompts.md](15-phase-build-prompts.md)
+> (see ADR-002). Mapping: **Phase 0 → pack Phase 1** (Supabase is superseded by the pack stack;
+> Stripe skeleton moves to pack Phase 5) · **Phase 1 (Tier 0) → pack Phases 2–7** ·
+> **Phase 2 (Tier 1) → pack Phases 8–10** · **Phase 3 (Tier 2) → pack Phase 11** ·
+> **Phase 4 (Tier 3) → pack Phase 12** · **Phase 5 (Tier 4) → post-launch, after pack 13–15.**
+> The liquidity metrics, launch wedge, and monetization sections remain authoritative.
+
 ---
 
 ## Phase 0 — Foundations (before any feature)

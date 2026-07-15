@@ -59,3 +59,65 @@ Format per entry:
 - Consequences: Phase 7's launch gate (golden-path E2E, placeholder sweep, launch checklist)
   is a hard stop; P8–P15 development must never break the live loop (regression suite from
   P7 runs on every merge).
+
+## ADR-004 — pnpm hoisted node linker for the whole workspace
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: `.npmrc` sets `node-linker=hoisted` workspace-wide.
+- Context: React Native/Expo (apps/mobile) does not resolve modules reliably from pnpm's
+  default isolated (symlinked) layout; Metro needs a flat node_modules.
+- Consequences: Slightly weaker dependency isolation for web/api tooling; Metro config
+  adds the workspace root to watchFolders/nodeModulesPaths.
+
+## ADR-005 — Refresh-token families carry an explicit family_id
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: `refresh_tokens` has both `rotated_from` (audit chain, per the pack schema) and
+  a `family_id` UUID shared by every rotation of one login.
+- Context: Reuse detection must revoke the whole family; walking the rotated_from chain is
+  O(n) queries, `family_id` makes it one UPDATE.
+- Consequences: Reuse of a rotated token revokes the entire family in a single statement;
+  audit log records the family id.
+
+## ADR-006 — Account status includes PENDING_VERIFICATION
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: `accounts.status ∈ {PENDING_VERIFICATION, ACTIVE, SUSPENDED, DELETED}` (the pack
+  listed only the last three).
+- Context: Signup→OTP verification needs a first-class pre-active state; login is blocked
+  with AUTH_EMAIL_NOT_VERIFIED until the OTP is consumed.
+- Consequences: Email verification is enforceable at the state-machine level, not by flag.
+
+## ADR-007 — New web surfaces use --wj-* CSS custom properties, not a second Tailwind root
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: `packages/ui-tokens/tokens.css` exports plain `:root { --wj-* }` custom
+  properties; platform routes style with handwritten classes (platform.css) in the
+  homepage's visual language. The frozen `globals.css` remains the single Tailwind v4 root.
+- Context: A second `@import "tailwindcss"` in a route-group stylesheet would duplicate
+  preflight/utilities and risk specificity drift against the frozen homepage.
+- Consequences: One Tailwind pipeline; tokens usable from any CSS; the TS token object
+  (`@wedjan/ui-tokens`) serves mobile StyleSheets.
+
+## ADR-008 — Mobile styling via StyleSheet + token object; NativeWind deferred
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: apps/mobile consumes `@wedjan/ui-tokens` as a typed TS object with React Native
+  StyleSheet; NativeWind is deferred to Phase 13 (native polish).
+- Context: NativeWind adds babel/tailwind config surface with little payoff for the Phase 1
+  shell; tokens keep the visual language identical either way.
+- Consequences: Revisit at Phase 13; no tailwind classes in mobile code until then.
+
+## ADR-009 — BlurHash encoder implemented in-repo
+- Date: 2026-07-15
+- Phase: 1
+- Status: Accepted
+- Decision: The media pipeline's blurhash generation is a self-contained ~100-line port of
+  the public-domain BlurHash algorithm (`media/BlurHash.java`) instead of a third-party jar.
+- Context: No well-maintained Maven artifact; the algorithm is tiny and stable.
+- Consequences: We own the code (unit-tested); encode only ≤64px thumbnails for cost.

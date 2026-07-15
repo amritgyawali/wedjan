@@ -1,0 +1,601 @@
+openapi: 3.1.0
+info:
+  title: wedjan API
+  description: |
+    wedjan — three-sided event & wedding marketplace API.
+    Phase 1 surface: identity, auth, profile, sessions, media pipeline, health.
+    Conventions: REST under /api/v1, cursor pagination, standard error envelope,
+    correlation IDs, money as integer minor units, UTC timestamps, UUIDv7 ids.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+    description: Local development
+tags:
+  - name: auth
+  - name: me
+  - name: media
+  - name: system
+
+paths:
+  /api/v1/auth/signup:
+    post:
+      tags: [auth]
+      operationId: signup
+      summary: Create an account with an initial role and send a 6-digit OTP
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignupRequest" }
+      responses:
+        "202":
+          description: >
+            Accepted. Always generic ("check your email") — never reveals
+            whether the email already exists (no account enumeration).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MessageResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/verify-email:
+    post:
+      tags: [auth]
+      operationId: verifyEmail
+      summary: Verify email with the 6-digit OTP (max 5 attempts per code)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerifyEmailRequest" }
+      responses:
+        "200":
+          description: Email verified; account is ACTIVE.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MessageResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Log in with email + password
+      description: |
+        Returns a short-lived access JWT (15m, includes roles[]).
+        Web clients receive the rotating refresh token as an httpOnly cookie.
+        Mobile clients send header `X-Wedjan-Client: mobile` and receive the
+        refresh token once in the response body for SecureStore.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/ClientHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Authenticated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthTokensResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refreshTokens
+      summary: Rotate the refresh token and mint a new access token
+      description: |
+        Refresh token is read from the httpOnly cookie (web) or the request
+        body (mobile). Rotation with reuse detection: presenting an
+        already-rotated token revokes the whole token family and forces
+        re-login (audit-logged).
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/ClientHeader"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "200":
+          description: New token pair.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthTokensResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Revoke the current session's refresh token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "204": { description: Logged out. }
+
+  /api/v1/auth/logout-all:
+    post:
+      tags: [auth]
+      operationId: logoutAll
+      summary: Revoke every refresh token for the account
+      responses:
+        "204": { description: All sessions revoked. }
+
+  /api/v1/auth/password-reset/request:
+    post:
+      tags: [auth]
+      operationId: requestPasswordReset
+      summary: Send a password-reset OTP to the email if an account exists
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordResetRequest" }
+      responses:
+        "202":
+          description: Generic acknowledgement (no enumeration).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MessageResponse" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/password-reset/confirm:
+    post:
+      tags: [auth]
+      operationId: confirmPasswordReset
+      summary: Set a new password using the reset OTP; revokes all sessions
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordResetConfirmRequest" }
+      responses:
+        "200":
+          description: Password updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MessageResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/auth/roles/add:
+    post:
+      tags: [auth]
+      operationId: addRole
+      summary: Add another role (CUSTOMER/VENDOR/FREELANCER) to the account
+      description: Adding an already-granted role is a 200 no-op.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddRoleRequest" }
+      responses:
+        "200":
+          description: Current role set after the (idempotent) grant.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RolesResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/me:
+    get:
+      tags: [me]
+      operationId: getMe
+      summary: Current account, roles and profile
+      responses:
+        "200":
+          description: The authenticated identity.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      tags: [me]
+      operationId: updateMe
+      summary: Update profile basics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateProfileRequest" }
+      responses:
+        "200":
+          description: Updated identity.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/me/sessions:
+    get:
+      tags: [me]
+      operationId: listSessions
+      summary: List active refresh sessions (device, ip, created, expires)
+      responses:
+        "200":
+          description: Active sessions.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionListResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/me/sessions/{sessionId}:
+    delete:
+      tags: [me]
+      operationId: revokeSession
+      summary: Revoke one refresh session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204": { description: Revoked. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/media/presign:
+    post:
+      tags: [media]
+      operationId: presignMedia
+      summary: Create an UPLOADING media asset and a presigned PUT URL
+      description: |
+        Size limits enforced server-side — image 15MB, video 200MB, doc 10MB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MediaPresignRequest" }
+      responses:
+        "201":
+          description: Presigned upload created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MediaPresignResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/media/{mediaId}/complete:
+    post:
+      tags: [media]
+      operationId: completeMedia
+      summary: Verify an uploaded object and mark the asset READY
+      description: |
+        Verifies object existence/size/type, probes image dimensions,
+        generates a blurhash. Idempotent — calling twice returns the same
+        READY asset; calling for a foreign asset returns 403.
+      parameters:
+        - name: mediaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Asset is READY.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MediaAsset" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/health:
+    get:
+      tags: [system]
+      operationId: health
+      summary: Liveness/readiness probe
+      security: []
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ClientHeader:
+      name: X-Wedjan-Client
+      in: header
+      required: false
+      description: >
+        Client type. "mobile" makes token endpoints return the refresh token
+        in the body (SecureStore) instead of an httpOnly cookie.
+      schema:
+        type: string
+        enum: [web, mobile]
+
+  responses:
+    ValidationError:
+      description: Request failed validation.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Forbidden:
+      description: Authenticated but not allowed.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    RateLimited:
+      description: Too many requests.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  schemas:
+    Role:
+      type: string
+      enum: [CUSTOMER, VENDOR, FREELANCER, ADMIN]
+
+    AccountStatus:
+      type: string
+      enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, DELETED]
+
+    Currency:
+      type: string
+      description: ISO 4217 code. Supported at launch.
+      enum: [AUD, USD, GBP, NPR]
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, traceId]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable error code (e.g. AUTH_INVALID_CREDENTIALS).
+            message:
+              type: string
+            fieldErrors:
+              type: array
+              items:
+                type: object
+                required: [field, message]
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+            traceId:
+              type: string
+              description: Correlation id for support/log lookup.
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+
+    SignupRequest:
+      type: object
+      required: [email, password, role]
+      properties:
+        email: { type: string, format: email, maxLength: 320 }
+        password:
+          type: string
+          minLength: 10
+          maxLength: 128
+          description: Argon2id-hashed at rest; min 10 chars.
+        role:
+          type: string
+          enum: [CUSTOMER, VENDOR, FREELANCER]
+        locale: { type: string, default: en, maxLength: 10 }
+        defaultCurrency: { $ref: "#/components/schemas/Currency" }
+        marketingOptIn: { type: boolean, default: false }
+
+    VerifyEmailRequest:
+      type: object
+      required: [email, code]
+      properties:
+        email: { type: string, format: email }
+        code: { type: string, pattern: "^[0-9]{6}$" }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+        deviceName: { type: string, maxLength: 120 }
+
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: Only for mobile clients; web uses the httpOnly cookie.
+
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+
+    PasswordResetConfirmRequest:
+      type: object
+      required: [email, code, newPassword]
+      properties:
+        email: { type: string, format: email }
+        code: { type: string, pattern: "^[0-9]{6}$" }
+        newPassword: { type: string, minLength: 10, maxLength: 128 }
+
+    AddRoleRequest:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [CUSTOMER, VENDOR, FREELANCER]
+
+    RolesResponse:
+      type: object
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          items: { $ref: "#/components/schemas/Role" }
+
+    AuthTokensResponse:
+      type: object
+      required: [accessToken, expiresInSeconds, account]
+      properties:
+        accessToken: { type: string }
+        expiresInSeconds: { type: integer, format: int32 }
+        refreshToken:
+          type: string
+          description: "Present only for mobile clients (X-Wedjan-Client: mobile)."
+        account: { $ref: "#/components/schemas/MeResponse" }
+
+    Account:
+      type: object
+      required: [id, email, status, locale, defaultCurrency, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        phone: { type: string }
+        status: { $ref: "#/components/schemas/AccountStatus" }
+        locale: { type: string }
+        defaultCurrency: { $ref: "#/components/schemas/Currency" }
+        marketingOptIn: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    Profile:
+      type: object
+      required: [accountId]
+      properties:
+        accountId: { type: string, format: uuid }
+        displayName: { type: string }
+        avatarMediaId: { type: string, format: uuid }
+        city: { type: string }
+        country: { type: string, description: "ISO 3166-1 alpha-2" }
+        timezone: { type: string, description: "IANA tz, e.g. Asia/Kathmandu" }
+
+    MeResponse:
+      type: object
+      required: [account, roles, profile]
+      properties:
+        account: { $ref: "#/components/schemas/Account" }
+        roles:
+          type: array
+          items: { $ref: "#/components/schemas/Role" }
+        profile: { $ref: "#/components/schemas/Profile" }
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName: { type: string, maxLength: 120 }
+        avatarMediaId: { type: string, format: uuid }
+        city: { type: string, maxLength: 120 }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        timezone: { type: string, maxLength: 64 }
+        locale: { type: string, maxLength: 10 }
+        defaultCurrency: { $ref: "#/components/schemas/Currency" }
+        marketingOptIn: { type: boolean }
+
+    Session:
+      type: object
+      required: [id, createdAt, expiresAt, current]
+      properties:
+        id: { type: string, format: uuid }
+        deviceName: { type: string }
+        ip: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        current:
+          type: boolean
+          description: True when this row backs the presented credentials.
+
+    SessionListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Session" }
+
+    MediaKind:
+      type: string
+      enum: [IMAGE, VIDEO, DOC]
+
+    MediaStatus:
+      type: string
+      enum: [UPLOADING, READY, BLOCKED]
+
+    MediaPresignRequest:
+      type: object
+      required: [kind, mime, bytes]
+      properties:
+        kind: { $ref: "#/components/schemas/MediaKind" }
+        mime: { type: string, maxLength: 255 }
+        bytes: { type: integer, format: int64, minimum: 1 }
+
+    MediaPresignResponse:
+      type: object
+      required: [mediaId, uploadUrl, expiresInSeconds]
+      properties:
+        mediaId: { type: string, format: uuid }
+        uploadUrl: { type: string, format: uri }
+        expiresInSeconds: { type: integer, format: int32 }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+          description: Headers the client must send on the PUT.
+
+    MediaAsset:
+      type: object
+      required: [id, kind, mime, bytes, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/MediaKind" }
+        mime: { type: string }
+        bytes: { type: integer, format: int64 }
+        width: { type: integer, format: int32 }
+        height: { type: integer, format: int32 }
+        blurhash: { type: string }
+        status: { $ref: "#/components/schemas/MediaStatus" }
+        url:
+          type: string
+          format: uri
+          description: Public or signed GET URL when READY.
+        createdAt: { type: string, format: date-time }
+
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string }
+
+security:
+  - bearerAuth: []
