@@ -40,8 +40,16 @@ function collectFrozenFiles() {
   return files.sort();
 }
 
+const BINARY_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".ico", ".svg"]);
+
 function hashFile(path) {
-  return createHash("sha256").update(readFileSync(path)).digest("hex");
+  let content = readFileSync(path);
+  const isBinary = [...BINARY_EXTENSIONS].some((ext) => path.toLowerCase().endsWith(ext));
+  if (!isBinary) {
+    // Normalize CRLF→LF so Windows autocrlf checkouts hash identically to CI.
+    content = Buffer.from(content.toString("utf8").replaceAll("\r\n", "\n"));
+  }
+  return createHash("sha256").update(content).digest("hex");
 }
 
 function buildManifest() {
