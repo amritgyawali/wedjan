@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+overrides:
+  postcss: 8.5.19
