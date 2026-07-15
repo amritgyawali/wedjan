@@ -37,6 +37,20 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="explore"
+        options={{
+          title: "Explore",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>⌕</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="inspiration"
+        options={{
+          title: "Inspiration",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>▦</Text>,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",

@@ -52,12 +52,12 @@ export type Vendor = {
 };
 
 export const navLinks = [
-  { label: "Venues", href: "#venues" },
-  { label: "Vendors", href: "#featured-vendors" },
-  { label: "Photos", href: "#gallery" },
-  { label: "Real Weddings", href: "#real-weddings" },
-  { label: "Blog", href: "#real-weddings" },
-  { label: "Shop", href: "#categories" },
+  { label: "Venues", href: "/search?category=venues" },
+  { label: "Vendors", href: "/search" },
+  { label: "Photos", href: "/inspiration" },
+  { label: "Real Weddings", href: "/inspiration?eventType=WEDDING" },
+  { label: "Blog", href: "/inspiration" },
+  { label: "Shop", href: "/search" },
 ] as const;
 
 export const vendorTypes: SelectOption[] = [

@@ -10,13 +10,13 @@ export function WeddingStoriesSection() {
       <SectionHeading
         description="Get inspired by beautiful celebrations"
         title="Real Wedding Stories"
-        viewAllHref="#gallery"
+        viewAllHref="/inspiration?eventType=WEDDING"
       />
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {weddingStories.map((story, index) => (
           <Link
             className={`editorial-card story-card group ${index === 2 ? "hidden lg:flex" : "flex"}`}
-            href="#gallery"
+            href="/inspiration?eventType=WEDDING"
             key={story.couple}
           >
             <div className="story-image">

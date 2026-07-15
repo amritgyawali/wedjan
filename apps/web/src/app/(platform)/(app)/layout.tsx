@@ -10,11 +10,13 @@ import { Icon } from "@/components/platform/icon";
 const NAV_BY_ROLE: Record<Role, { href: string; icon: string; label: string }[]> = {
   CUSTOMER: [
     { href: "/dashboard", icon: "celebration", label: "My Events" },
+    { href: "/shortlists", icon: "favorite", label: "Shortlists" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
   VENDOR: [
     { href: "/dashboard", icon: "storefront", label: "Dashboard" },
     { href: "/vendor/onboarding", icon: "edit_note", label: "Edit listing" },
+    { href: "/vendor/showcases", icon: "photo_library", label: "Real events" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
   FREELANCER: [

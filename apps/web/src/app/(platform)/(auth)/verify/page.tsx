@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { apiErrorMessage } from "@wedjan/shared";
@@ -68,7 +69,7 @@ function VerifyForm() {
         </button>
       </form>
       <p className="auth-alt">
-        Wrong account? <a className="text-link" href="/signup">Start over</a>
+        Wrong account? <Link className="text-link" href="/signup">Start over</Link>
       </p>
     </>
   );

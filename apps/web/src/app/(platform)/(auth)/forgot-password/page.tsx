@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
@@ -42,7 +43,7 @@ export default function ForgotPasswordPage() {
         </button>
       </form>
       <p className="auth-alt">
-        Remembered it? <a className="text-link" href="/login">Log in</a>
+        Remembered it? <Link className="text-link" href="/login">Log in</Link>
       </p>
     </>
   );

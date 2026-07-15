@@ -159,3 +159,48 @@ Format per entry:
   2 controls required no behavior that justified adding a parallel component/theme layer.
 - Consequences: Web and native continue to share the token source rather than component code;
   shadcn can still be introduced for a future complex primitive if it preserves ADR-001/007.
+
+## ADR-013 — Point-radius discovery uses earthdistance, not PostGIS
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Enable PostgreSQL `cube` + `earthdistance`, with a GiST expression index on
+  service-area coordinates, for customer-point-to-service-radius matching.
+- Context: Phase 3 needs indexed point/radius tests but no polygons, routes, or topology.
+  PostGIS would add operational weight without improving this phase's query model.
+- Consequences: Search verifies both the requested search radius and the vendor's promised
+  service radius. Introduce PostGIS later only if a future phase needs polygonal service zones.
+
+## ADR-014 — Search prices stay native; comparison FX is approximate and dated
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: City/corridor search filters package minor units in the package's native currency.
+  Cross-currency compare shows native prices first and an explicitly approximate conversion
+  from the latest row in the static daily `fx_rates` table.
+- Context: The search contract has no requested-currency parameter and checkout does not exist
+  until Phase 5. Silently normalizing filter numbers would imply precision that is not present.
+- Consequences: Landing pages use the city's real package currency. Checkout will always charge
+  native terms; a scheduled FX importer can replace seeded rates without changing the API.
+
+## ADR-015 — Discovery pagination anchors on the last UUIDv7
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Search cursors encode the final vendor UUIDv7 from the prior sorted page; feed
+  cursors remain offsets only for the append-mostly showcase feed.
+- Context: Plain offsets cause duplicate/missing vendor cards when new listings are inserted
+  ahead of a customer between requests. wedjan already standardizes on time-ordered UUIDv7 ids.
+- Consequences: Vendor pagination is stable across insertions. A price or relevance change can
+  still re-rank an item, which is acceptable for live marketplace search.
+
+## ADR-016 — Frozen homepage Phase 3 work is behavior-only
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Wire the existing hero, navigation, category, gallery, story, login, and vendor
+  links to live Phase 3 routes without changing their visible design or CSS.
+- Context: ADR-001 freezes the approved homepage while the Phase 3 playbook explicitly requires
+  its controls and CTAs to go live. The freeze manifest is re-baselined only for these links.
+- Consequences: The homepage looks identical; its controls now enter real search, inspiration,
+  auth, and onboarding flows. Future visual edits still fail the manifest guard.

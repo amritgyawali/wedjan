@@ -613,6 +613,246 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search/vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchVendors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShowcaseFeed"];
+        put?: never;
+        post: operations["createShowcase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/{idOrSlug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShowcase"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteShowcase"];
+        options?: never;
+        head?: never;
+        patch: operations["updateShowcase"];
+        trace?: never;
+    };
+    "/api/v1/showcases/me/owned": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyShowcases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/me/pending-tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPendingShowcaseTags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/tags/{tagId}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["acceptShowcaseTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/tags/{tagId}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["declineShowcaseTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getFavorites"];
+        put?: never;
+        post: operations["addFavorite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/favorites/{type}/{entityId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeFavorite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShortlists"];
+        put?: never;
+        post: operations["createShortlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists/{shortlistId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addShortlistItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists/{shortlistId}/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteShortlistItem"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["comparePackages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seo/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeoRoutes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seo/{country}/{city}/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeoLanding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -1091,6 +1331,240 @@ export interface components {
              * @description For INSURANCE approvals — badge expiry.
              */
             expiresAt?: string;
+        };
+        /** @enum {string} */
+        SearchSort: "RELEVANCE" | "PRICE_ASC" | "PRICE_DESC" | "RATING" | "NEWEST";
+        /** @enum {string} */
+        EventType: "WEDDING" | "CORPORATE" | "BIRTHDAY" | "CULTURAL" | "OTHER";
+        /** @enum {string} */
+        ShowcaseStatus: "DRAFT" | "PUBLISHED" | "FLAGGED";
+        /** @enum {string} */
+        TagStatus: "PENDING" | "ACCEPTED" | "DECLINED";
+        /** @enum {string} */
+        EntityType: "VENDOR" | "SHOWCASE" | "PACKAGE";
+        PackageSummary: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            /** Format: int64 */
+            priceCents: number;
+            currency: components["schemas"]["Currency"];
+            pricingModel: components["schemas"]["PricingModel"];
+            bookingMode: components["schemas"]["BookingMode"];
+            depositPct: number;
+            cancellationPolicy: components["schemas"]["CancellationPolicy"];
+            whatsIncludedMd?: string;
+            coverUrl?: string;
+        };
+        VendorCard: {
+            /** Format: uuid */
+            vendorId: string;
+            slug: string;
+            businessName: string;
+            tagline?: string;
+            city: string;
+            country: string;
+            currency: components["schemas"]["Currency"];
+            categories: string[];
+            cheapestPackage: components["schemas"]["PackageSummary"];
+            badges: string[];
+            coverUrl?: string;
+            /** Format: double */
+            distanceKm?: number;
+            /** @description Empty until Phase 4. */
+            nextAvailableDates: string[];
+            /** Format: double */
+            relevance?: number;
+        };
+        FacetValue: {
+            value: string;
+            /** Format: int64 */
+            count: number;
+        };
+        SearchFacets: {
+            categories: components["schemas"]["FacetValue"][];
+            cities: components["schemas"]["FacetValue"][];
+            badges: components["schemas"]["FacetValue"][];
+            bookingModes: components["schemas"]["FacetValue"][];
+        };
+        RelaxationSuggestion: {
+            type: string;
+            label: string;
+            value: string;
+        };
+        VendorSearchResponse: {
+            items: components["schemas"]["VendorCard"][];
+            facets: components["schemas"]["SearchFacets"];
+            suggestions: components["schemas"]["RelaxationSuggestion"][];
+            nextCursor?: string;
+            /** Format: int64 */
+            total: number;
+        };
+        ShowcaseMediaRequest: {
+            /** Format: uuid */
+            mediaId: string;
+            caption?: string;
+            sort?: number;
+        };
+        ShowcaseVendorTagRequest: {
+            /** Format: uuid */
+            vendorId: string;
+            roleLabel: string;
+        };
+        ShowcaseRequest: {
+            title: string;
+            eventType: components["schemas"]["EventType"];
+            /** Format: date */
+            eventDate?: string;
+            city: string;
+            country: string;
+            /** Format: uuid */
+            coverMediaId: string;
+            descriptionMd?: string;
+            styleTags?: string[];
+            media: components["schemas"]["ShowcaseMediaRequest"][];
+            vendorTags?: components["schemas"]["ShowcaseVendorTagRequest"][];
+            status?: components["schemas"]["ShowcaseStatus"];
+        };
+        ShowcaseMedia: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            mediaId: string;
+            caption?: string;
+            sort: number;
+            url: string;
+            width?: number;
+            height?: number;
+            blurhash?: string;
+        };
+        ShowcaseVendorTag: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            businessName: string;
+            roleLabel: string;
+            status: components["schemas"]["TagStatus"];
+        };
+        Showcase: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerVendorId: string;
+            ownerVendorSlug: string;
+            ownerBusinessName: string;
+            title: string;
+            slug: string;
+            eventType: components["schemas"]["EventType"];
+            /** Format: date */
+            eventDate?: string;
+            city: string;
+            country: string;
+            descriptionMd?: string;
+            status: components["schemas"]["ShowcaseStatus"];
+            styleTags: string[];
+            coverUrl?: string;
+            media: components["schemas"]["ShowcaseMedia"][];
+            vendorTags: components["schemas"]["ShowcaseVendorTag"][];
+            /** Format: date-time */
+            createdAt: string;
+            favorite: boolean;
+        };
+        ShowcaseFeedResponse: {
+            items: components["schemas"]["Showcase"][];
+            nextCursor?: string;
+        };
+        FavoriteRequest: {
+            entityType: components["schemas"]["EntityType"];
+            /** Format: uuid */
+            entityId: string;
+        };
+        Favorite: {
+            entityType: components["schemas"]["EntityType"];
+            /** Format: uuid */
+            entityId: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FavoriteListResponse: {
+            items: components["schemas"]["Favorite"][];
+        };
+        ShortlistRequest: {
+            name: string;
+        };
+        ShortlistItemRequest: {
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            packageId?: string;
+            note?: string;
+        };
+        ShortlistItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            businessName: string;
+            /** Format: uuid */
+            packageId?: string;
+            packageTitle?: string;
+            /** Format: int64 */
+            priceCents?: number;
+            currency?: components["schemas"]["Currency"];
+            note?: string;
+        };
+        Shortlist: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            items: components["schemas"]["ShortlistItem"][];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ShortlistListResponse: {
+            items: components["schemas"]["Shortlist"][];
+        };
+        CompareResponse: {
+            items: components["schemas"]["VendorCard"][];
+            displayCurrency: components["schemas"]["Currency"];
+            approximatePrices: {
+                [key: string]: number;
+            };
+            fxNotice: string;
+        };
+        SeoFaq: {
+            question: string;
+            answer: string;
+        };
+        LandingPage: {
+            country: string;
+            city: string;
+            categorySlug: string;
+            categoryName: string;
+            /** Format: int64 */
+            vendorCount: number;
+            /** Format: int64 */
+            minimumPriceCents?: number;
+            /** Format: int64 */
+            maximumPriceCents?: number;
+            /** Format: int64 */
+            medianPriceCents?: number;
+            currency: components["schemas"]["Currency"];
+            vendors: components["schemas"]["VendorCard"][];
+            faqs: components["schemas"]["SeoFaq"][];
+            siblingCities: string[];
+            siblingCategories: string[];
+        };
+        LandingRoute: {
+            country: string;
+            city: string;
+            category: string;
+        };
+        LandingRouteList: {
+            items: components["schemas"]["LandingRoute"][];
         };
     };
     responses: {
@@ -2104,6 +2578,467 @@ export interface operations {
                 };
             };
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    searchVendors: {
+        parameters: {
+            query?: {
+                q?: string;
+                category?: string;
+                city?: string;
+                lat?: number;
+                lng?: number;
+                radius?: number;
+                price_min?: number;
+                price_max?: number;
+                guests?: number;
+                badges?: string[];
+                booking_mode?: components["schemas"]["BookingMode"];
+                sort?: components["schemas"]["SearchSort"];
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Filtered vendor cards with facets */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorSearchResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    getShowcaseFeed: {
+        parameters: {
+            query?: {
+                eventType?: components["schemas"]["EventType"];
+                city?: string;
+                styleTags?: string[];
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published inspiration feed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    createShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowcaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published showcase */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowcaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getMyShowcases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vendor showcases */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    getPendingShowcaseTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tags awaiting response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    acceptShowcaseTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tagId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    declineShowcaseTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tagId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Declined */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getFavorites: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favorites */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteListResponse"];
+                };
+            };
+        };
+    };
+    addFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavoriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Favorited */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Favorite"];
+                };
+            };
+        };
+    };
+    removeFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: components["schemas"]["EntityType"];
+                entityId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getShortlists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Shortlists */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShortlistListResponse"];
+                };
+            };
+        };
+    };
+    createShortlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShortlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shortlist"];
+                };
+            };
+        };
+    };
+    addShortlistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortlistId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShortlistItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shortlist"];
+                };
+            };
+        };
+    };
+    deleteShortlistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortlistId: string;
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    comparePackages: {
+        parameters: {
+            query: {
+                packageIds: string[];
+                currency?: components["schemas"]["Currency"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Package comparison */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareResponse"];
+                };
+            };
+        };
+    };
+    getSeoRoutes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active landing routes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingRouteList"];
+                };
+            };
+        };
+    };
+    getSeoLanding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                country: string;
+                city: string;
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live category-city content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingPage"];
+                };
+            };
             404: components["responses"]["NotFound"];
         };
     };

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { CURRENCIES, SIGNUP_ROLES, apiErrorMessage, type Role } from "@wedjan/shared";
@@ -175,9 +176,9 @@ export default function SettingsPage() {
                 {role === "FREELANCER" && "+ Work events"}
               </button>
             ))}
-            <a className="ghost-button" href="/forgot-password">
+            <Link className="ghost-button" href="/forgot-password">
               Change password
-            </a>
+            </Link>
           </div>
         </section>
 

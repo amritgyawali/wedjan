@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/actuator/info", "/error")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories", "/api/v1/vendors/*",
-                                "/api/v1/vendors/*/packages")
+                                "/api/v1/vendors/*/packages", "/api/v1/search/**",
+                                "/api/v1/showcases", "/api/v1/showcases/*", "/api/v1/seo/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())

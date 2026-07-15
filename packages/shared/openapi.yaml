@@ -3,7 +3,7 @@ info:
   title: wedjan API
   description: |
     wedjan — three-sided event & wedding marketplace API.
-    Phase 1 surface: identity, auth, profile, sessions, media pipeline, health.
+    Phase 1–3 surface: identity, vendor supply, search, inspiration, favorites and AEO.
     Conventions: REST under /api/v1, cursor pagination, standard error envelope,
     correlation IDs, money as integer minor units, UTC timestamps, UUIDv7 ids.
   version: 0.1.0
@@ -17,6 +17,9 @@ tags:
   - name: catalog
   - name: vendor
   - name: admin
+  - name: discovery
+  - name: showcase
+  - name: seo
   - name: system
 
 paths:
@@ -704,6 +707,167 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/VerificationDocument" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/search/vendors:
+    get:
+      tags: [discovery]
+      operationId: searchVendors
+      security: []
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: city, in: query, schema: { type: string } }
+        - { name: lat, in: query, schema: { type: number, format: double } }
+        - { name: lng, in: query, schema: { type: number, format: double } }
+        - { name: radius, in: query, schema: { type: number, format: double } }
+        - { name: price_min, in: query, schema: { type: integer, format: int64 } }
+        - { name: price_max, in: query, schema: { type: integer, format: int64 } }
+        - { name: guests, in: query, schema: { type: integer } }
+        - { name: badges, in: query, schema: { type: array, items: { type: string } } }
+        - { name: booking_mode, in: query, schema: { $ref: "#/components/schemas/BookingMode" } }
+        - { name: sort, in: query, schema: { $ref: "#/components/schemas/SearchSort" } }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Filtered vendor cards with facets, content: { application/json: { schema: { $ref: "#/components/schemas/VendorSearchResponse" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/showcases:
+    get:
+      tags: [showcase]
+      operationId: getShowcaseFeed
+      security: []
+      parameters:
+        - { name: eventType, in: query, schema: { $ref: "#/components/schemas/EventType" } }
+        - { name: city, in: query, schema: { type: string } }
+        - { name: styleTags, in: query, schema: { type: array, items: { type: string } } }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Published inspiration feed, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+    post:
+      tags: [showcase]
+      operationId: createShowcase
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseRequest" } } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+
+  /api/v1/showcases/{idOrSlug}:
+    get:
+      tags: [showcase]
+      operationId: getShowcase
+      security: []
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Published showcase, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [showcase]
+      operationId: updateShowcase
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseRequest" } } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+    delete:
+      tags: [showcase]
+      operationId: deleteShowcase
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "204": { description: Deleted } }
+
+  /api/v1/showcases/me/owned:
+    get:
+      tags: [showcase]
+      operationId: getMyShowcases
+      responses:
+        "200": { description: Vendor showcases, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+  /api/v1/showcases/me/pending-tags:
+    get:
+      tags: [showcase]
+      operationId: getPendingShowcaseTags
+      responses:
+        "200": { description: Tags awaiting response, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+  /api/v1/showcases/tags/{tagId}/accept:
+    post:
+      tags: [showcase]
+      operationId: acceptShowcaseTag
+      parameters: [{ name: tagId, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: Accepted, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } } }
+  /api/v1/showcases/tags/{tagId}/decline:
+    post:
+      tags: [showcase]
+      operationId: declineShowcaseTag
+      parameters: [{ name: tagId, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: Declined, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } } }
+
+  /api/v1/discovery/favorites:
+    get:
+      tags: [discovery]
+      operationId: getFavorites
+      responses: { "200": { description: Favorites, content: { application/json: { schema: { $ref: "#/components/schemas/FavoriteListResponse" } } } } }
+    post:
+      tags: [discovery]
+      operationId: addFavorite
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/FavoriteRequest" } } } }
+      responses: { "201": { description: Favorited, content: { application/json: { schema: { $ref: "#/components/schemas/Favorite" } } } } }
+  /api/v1/discovery/favorites/{type}/{entityId}:
+    delete:
+      tags: [discovery]
+      operationId: removeFavorite
+      parameters:
+        - { name: type, in: path, required: true, schema: { $ref: "#/components/schemas/EntityType" } }
+        - { name: entityId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "204": { description: Removed } }
+
+  /api/v1/discovery/shortlists:
+    get:
+      tags: [discovery]
+      operationId: getShortlists
+      responses: { "200": { description: Shortlists, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistListResponse" } } } } }
+    post:
+      tags: [discovery]
+      operationId: createShortlist
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistRequest" } } } }
+      responses: { "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Shortlist" } } } } }
+  /api/v1/discovery/shortlists/{shortlistId}/items:
+    post:
+      tags: [discovery]
+      operationId: addShortlistItem
+      parameters: [{ name: shortlistId, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistItemRequest" } } } }
+      responses: { "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Shortlist" } } } } }
+  /api/v1/discovery/shortlists/{shortlistId}/items/{itemId}:
+    delete:
+      tags: [discovery]
+      operationId: deleteShortlistItem
+      parameters:
+        - { name: shortlistId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: itemId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "204": { description: Removed } }
+  /api/v1/discovery/compare:
+    get:
+      tags: [discovery]
+      operationId: comparePackages
+      parameters:
+        - { name: packageIds, in: query, required: true, schema: { type: array, maxItems: 4, items: { type: string, format: uuid } } }
+        - { name: currency, in: query, schema: { $ref: "#/components/schemas/Currency" } }
+      responses: { "200": { description: Package comparison, content: { application/json: { schema: { $ref: "#/components/schemas/CompareResponse" } } } } }
+
+  /api/v1/seo/routes:
+    get:
+      tags: [seo]
+      operationId: getSeoRoutes
+      security: []
+      responses: { "200": { description: Active landing routes, content: { application/json: { schema: { $ref: "#/components/schemas/LandingRouteList" } } } } }
+  /api/v1/seo/{country}/{city}/{category}:
+    get:
+      tags: [seo]
+      operationId: getSeoLanding
+      security: []
+      parameters:
+        - { name: country, in: path, required: true, schema: { type: string } }
+        - { name: city, in: path, required: true, schema: { type: string } }
+        - { name: category, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Live category-city content, content: { application/json: { schema: { $ref: "#/components/schemas/LandingPage" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
 
   /api/v1/health:
@@ -1413,6 +1577,241 @@ components:
           type: string
           format: date-time
           description: For INSURANCE approvals — badge expiry.
+
+    SearchSort: { type: string, enum: [RELEVANCE, PRICE_ASC, PRICE_DESC, RATING, NEWEST] }
+    EventType: { type: string, enum: [WEDDING, CORPORATE, BIRTHDAY, CULTURAL, OTHER] }
+    ShowcaseStatus: { type: string, enum: [DRAFT, PUBLISHED, FLAGGED] }
+    TagStatus: { type: string, enum: [PENDING, ACCEPTED, DECLINED] }
+    EntityType: { type: string, enum: [VENDOR, SHOWCASE, PACKAGE] }
+
+    PackageSummary:
+      type: object
+      required: [id, title, priceCents, currency, pricingModel, bookingMode, depositPct, cancellationPolicy]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        whatsIncludedMd: { type: string }
+        coverUrl: { type: string }
+    VendorCard:
+      type: object
+      required: [vendorId, slug, businessName, city, country, currency, categories, cheapestPackage, badges, nextAvailableDates]
+      properties:
+        vendorId: { type: string, format: uuid }
+        slug: { type: string }
+        businessName: { type: string }
+        tagline: { type: string }
+        city: { type: string }
+        country: { type: string }
+        currency: { $ref: "#/components/schemas/Currency" }
+        categories: { type: array, items: { type: string } }
+        cheapestPackage: { $ref: "#/components/schemas/PackageSummary" }
+        badges: { type: array, items: { type: string } }
+        coverUrl: { type: string }
+        distanceKm: { type: number, format: double }
+        nextAvailableDates: { type: array, description: Empty until Phase 4., items: { type: string, format: date } }
+        relevance: { type: number, format: double }
+    FacetValue:
+      type: object
+      required: [value, count]
+      properties: { value: { type: string }, count: { type: integer, format: int64 } }
+    SearchFacets:
+      type: object
+      required: [categories, cities, badges, bookingModes]
+      properties:
+        categories: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        cities: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        badges: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        bookingModes: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+    RelaxationSuggestion:
+      type: object
+      required: [type, label, value]
+      properties: { type: { type: string }, label: { type: string }, value: { type: string } }
+    VendorSearchResponse:
+      type: object
+      required: [items, facets, suggestions, total]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/VendorCard" } }
+        facets: { $ref: "#/components/schemas/SearchFacets" }
+        suggestions: { type: array, items: { $ref: "#/components/schemas/RelaxationSuggestion" } }
+        nextCursor: { type: string }
+        total: { type: integer, format: int64 }
+
+    ShowcaseMediaRequest:
+      type: object
+      required: [mediaId]
+      properties:
+        mediaId: { type: string, format: uuid }
+        caption: { type: string, maxLength: 300 }
+        sort: { type: integer }
+    ShowcaseVendorTagRequest:
+      type: object
+      required: [vendorId, roleLabel]
+      properties:
+        vendorId: { type: string, format: uuid }
+        roleLabel: { type: string, maxLength: 120 }
+    ShowcaseRequest:
+      type: object
+      required: [title, eventType, city, country, coverMediaId, media]
+      properties:
+        title: { type: string, maxLength: 180 }
+        eventType: { $ref: "#/components/schemas/EventType" }
+        eventDate: { type: string, format: date }
+        city: { type: string, maxLength: 120 }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        coverMediaId: { type: string, format: uuid }
+        descriptionMd: { type: string, maxLength: 10000 }
+        styleTags: { type: array, maxItems: 12, items: { type: string } }
+        media: { type: array, minItems: 1, maxItems: 40, items: { $ref: "#/components/schemas/ShowcaseMediaRequest" } }
+        vendorTags: { type: array, maxItems: 20, items: { $ref: "#/components/schemas/ShowcaseVendorTagRequest" } }
+        status: { $ref: "#/components/schemas/ShowcaseStatus" }
+    ShowcaseMedia:
+      type: object
+      required: [id, mediaId, sort, url]
+      properties:
+        id: { type: string, format: uuid }
+        mediaId: { type: string, format: uuid }
+        caption: { type: string }
+        sort: { type: integer }
+        url: { type: string }
+        width: { type: integer }
+        height: { type: integer }
+        blurhash: { type: string }
+    ShowcaseVendorTag:
+      type: object
+      required: [id, vendorId, vendorSlug, businessName, roleLabel, status]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        businessName: { type: string }
+        roleLabel: { type: string }
+        status: { $ref: "#/components/schemas/TagStatus" }
+    Showcase:
+      type: object
+      required: [id, ownerVendorId, ownerVendorSlug, ownerBusinessName, title, slug, eventType, city, country, status, styleTags, media, vendorTags, createdAt, favorite]
+      properties:
+        id: { type: string, format: uuid }
+        ownerVendorId: { type: string, format: uuid }
+        ownerVendorSlug: { type: string }
+        ownerBusinessName: { type: string }
+        title: { type: string }
+        slug: { type: string }
+        eventType: { $ref: "#/components/schemas/EventType" }
+        eventDate: { type: string, format: date }
+        city: { type: string }
+        country: { type: string }
+        descriptionMd: { type: string }
+        status: { $ref: "#/components/schemas/ShowcaseStatus" }
+        styleTags: { type: array, items: { type: string } }
+        coverUrl: { type: string }
+        media: { type: array, items: { $ref: "#/components/schemas/ShowcaseMedia" } }
+        vendorTags: { type: array, items: { $ref: "#/components/schemas/ShowcaseVendorTag" } }
+        createdAt: { type: string, format: date-time }
+        favorite: { type: boolean }
+    ShowcaseFeedResponse:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Showcase" } }
+        nextCursor: { type: string }
+
+    FavoriteRequest:
+      type: object
+      required: [entityType, entityId]
+      properties:
+        entityType: { $ref: "#/components/schemas/EntityType" }
+        entityId: { type: string, format: uuid }
+    Favorite:
+      type: object
+      required: [entityType, entityId, createdAt]
+      properties:
+        entityType: { $ref: "#/components/schemas/EntityType" }
+        entityId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+    FavoriteListResponse:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/Favorite" } } }
+    ShortlistRequest:
+      type: object
+      required: [name]
+      properties: { name: { type: string, maxLength: 120 } }
+    ShortlistItemRequest:
+      type: object
+      required: [vendorId]
+      properties:
+        vendorId: { type: string, format: uuid }
+        packageId: { type: string, format: uuid }
+        note: { type: string, maxLength: 500 }
+    ShortlistItem:
+      type: object
+      required: [id, vendorId, vendorSlug, businessName]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        businessName: { type: string }
+        packageId: { type: string, format: uuid }
+        packageTitle: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        note: { type: string }
+    Shortlist:
+      type: object
+      required: [id, name, items, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        items: { type: array, items: { $ref: "#/components/schemas/ShortlistItem" } }
+        createdAt: { type: string, format: date-time }
+    ShortlistListResponse:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/Shortlist" } } }
+    CompareResponse:
+      type: object
+      required: [items, displayCurrency, approximatePrices, fxNotice]
+      properties:
+        items: { type: array, maxItems: 4, items: { $ref: "#/components/schemas/VendorCard" } }
+        displayCurrency: { $ref: "#/components/schemas/Currency" }
+        approximatePrices: { type: object, additionalProperties: { type: integer, format: int64 } }
+        fxNotice: { type: string }
+
+    SeoFaq:
+      type: object
+      required: [question, answer]
+      properties: { question: { type: string }, answer: { type: string } }
+    LandingPage:
+      type: object
+      required: [country, city, categorySlug, categoryName, vendorCount, currency, vendors, faqs, siblingCities, siblingCategories]
+      properties:
+        country: { type: string }
+        city: { type: string }
+        categorySlug: { type: string }
+        categoryName: { type: string }
+        vendorCount: { type: integer, format: int64 }
+        minimumPriceCents: { type: integer, format: int64 }
+        maximumPriceCents: { type: integer, format: int64 }
+        medianPriceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        vendors: { type: array, items: { $ref: "#/components/schemas/VendorCard" } }
+        faqs: { type: array, items: { $ref: "#/components/schemas/SeoFaq" } }
+        siblingCities: { type: array, items: { type: string } }
+        siblingCategories: { type: array, items: { type: string } }
+    LandingRoute:
+      type: object
+      required: [country, city, category]
+      properties: { country: { type: string }, city: { type: string }, category: { type: string } }
+    LandingRouteList:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/LandingRoute" } } }
 
 security:
   - bearerAuth: []

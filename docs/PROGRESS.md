@@ -9,7 +9,7 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 |---|---|---|---|---|---|
 | 1 Foundation | ✅ | 2026-07-15 | 2026-07-15 | phase-1-complete | Merged + tagged (owner accepted). Deferred: Railway/Vercel deploys (accounts pending), mobile device run (P13) |
 | 2 Vendor supply | ✅ | 2026-07-15 | 2026-07-15 | phase-2-complete | Built + locally verified on `feat/phase-2-vendor-supply`; tag after merge/owner acceptance |
-| 3 Discovery/AEO | ☐ | | | phase-3-complete | |
+| 3 Discovery/AEO | ✅ | 2026-07-15 | 2026-07-15 | phase-3-complete | Built + fully verified on `feat/phase-3-discovery-aeo`; tag after owner acceptance |
 | 4 Booking engine | ☐ | | | phase-4-complete | |
 | 5 Payments/Escrow | ☐ | | | phase-5-complete | |
 | 6 Leads/Messaging | ☐ | | | phase-6-complete | |
@@ -80,6 +80,19 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 - **Phase 2 seed/test** — optional dev seed creates 20 verified vendors across 10 categories in
   Kathmandu + Melbourne; the Testcontainers flow proves incomplete gates, onboard→approve→live,
   badges, visible prices, price versioning, and live sensitive-field re-review.
+- **Phase 3 search** — weighted PostgreSQL FTS + trigram typo tolerance, indexed earthdistance
+  service-radius matching, complete combinable filters/facets, stable UUIDv7 cursors, server-side
+  empty-result relaxations, and async low-result analytics. The supplied 10k generator measured
+  243.4 ms p95 across 100 warmed local requests (300 ms gate).
+- **Inspiration + customer discovery** — vendor showcase CRUD, media galleries, email tag requests,
+  accepted-credit-only public reads, web/mobile feeds and details, double-tap favorites, named
+  shortlists, and four-package comparison with native + clearly approximate static FX amounts.
+- **AEO/SEO** — active category×city one-hour ISR pages with live price stats and six seeded FAQs;
+  ItemList/FAQPage/BreadcrumbList plus vendor FAQ JSON-LD; daily sitemap index/type maps, robots.txt,
+  and llms.txt. Existing frozen homepage design is unchanged while all relevant controls/CTAs now
+  route into live search, inspiration, auth, and vendor onboarding.
+- **Phase 3 mobile** — native Explore and Inspiration tabs with filters, cursor loading, vendor and
+  showcase details, confirmed team credits, and favorites; shared generated OpenAPI client parity.
 
 ## What is stubbed / not started
 
@@ -88,7 +101,7 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 - shadcn/ui: not installed — ADR-012 keeps the Phase 2 wizard on accessible native controls and
   the existing token system; reconsider only for a future complex primitive.
 - Prettier + Husky pre-commit hooks: deferred (ESLint + CI gates cover the bar for now).
-- Search, bookings, payments, messaging, reviews, and freelancer domain: Phases 3–7/12.
+- Bookings, payments, messaging, reviews, and freelancer domain: Phases 4–7/12.
 
 ## Known placeholders awaiting later phases
 
@@ -96,6 +109,8 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
   and admin placeholders were replaced by real Phase 2 surfaces.
 - Public profile availability/message CTAs deliberately capture intent in a local waitlist modal;
   Phase 4 and Phase 6 replace them with the booking and messaging flows.
+- Search rating sort and next-three-available-dates fields are explicit placeholders: Phase 7 adds
+  merit/rating order and Phase 4 supplies real availability without changing the search contract.
 - Settings "Change password" routes through the password-reset flow (no authenticated
   change-password endpoint yet; add when Phase 14 hardens account management).
-- `feature.vendor_onboarding` is enabled by V2; future Phase 3–5 feature flags remain false.
+- `feature.vendor_onboarding` and `feature.discovery` are enabled; future Phase 4–5 flags remain false.

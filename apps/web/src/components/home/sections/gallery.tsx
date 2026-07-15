@@ -23,7 +23,7 @@ export function GallerySection() {
         {galleryItems.map((item) => (
           <Link
             className={`gallery-item group ${galleryClassNames[item.variant]}`}
-            href="#categories"
+            href="/inspiration"
             key={item.title}
           >
             <Image

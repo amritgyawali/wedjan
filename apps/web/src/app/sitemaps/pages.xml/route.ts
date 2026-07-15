@@ -1,0 +1,1 @@
+import { xmlResponse,xmlUrls,getRoutes,WEB } from "../sitemap-utils";export async function GET(){const routes=await getRoutes();return xmlResponse(xmlUrls([WEB,`${WEB}/search`,`${WEB}/inspiration`,...routes.map(x=>`${WEB}/${x.country}/${x.city}/${x.category}`)]))}

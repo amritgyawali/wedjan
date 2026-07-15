@@ -55,6 +55,15 @@ public class MailService {
                         + "View your public listing: " + publicUrl);
     }
 
+    @Async
+    public void sendShowcaseTagRequest(String email, String showcaseTitle, String ownerName,
+            String dashboardUrl) {
+        send(email, "Confirm your credit on " + showcaseTitle,
+                ownerName + " tagged your business in the real event “" + showcaseTitle + "”.\n\n"
+                        + "Accept the credit before your name appears publicly: " + dashboardUrl
+                        + "\n\nYou can decline if this association is not accurate.");
+    }
+
     private void send(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

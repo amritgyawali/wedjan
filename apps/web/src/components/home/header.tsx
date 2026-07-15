@@ -63,8 +63,7 @@ export function Header() {
 
   function openLogin() {
     setIsMenuOpen(false);
-    setLoginMessage("");
-    dialogRef.current?.showModal();
+    window.location.assign("/login");
   }
 
   function handleLogin(event: FormEvent<HTMLFormElement>) {

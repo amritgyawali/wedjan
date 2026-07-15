@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/components/platform/auth-context";
@@ -59,10 +60,10 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="auth-alt">
-        <a className="text-link" href="/forgot-password">Forgot password?</a>
+        <Link className="text-link" href="/forgot-password">Forgot password?</Link>
       </p>
       <p className="auth-alt">
-        New to wedjan? <a className="text-link" href="/signup">Create an account</a>
+        New to wedjan? <Link className="text-link" href="/signup">Create an account</Link>
       </p>
     </>
   );

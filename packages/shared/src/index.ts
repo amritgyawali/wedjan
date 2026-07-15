@@ -21,6 +21,14 @@ export type VendorPublic = components["schemas"]["VendorPublicResponse"];
 export type VendorPackage = components["schemas"]["Package"];
 export type VendorMediaItem = components["schemas"]["VendorMediaItem"];
 export type SubmitGate = components["schemas"]["SubmitGate"];
+export type VendorCard = components["schemas"]["VendorCard"];
+export type VendorSearchResponse = components["schemas"]["VendorSearchResponse"];
+export type Showcase = components["schemas"]["Showcase"];
+export type ShowcaseFeed = components["schemas"]["ShowcaseFeedResponse"];
+export type Favorite = components["schemas"]["Favorite"];
+export type Shortlist = components["schemas"]["Shortlist"];
+export type CompareResponse = components["schemas"]["CompareResponse"];
+export type LandingPage = components["schemas"]["LandingPage"];
 
 export const ROLES = ["CUSTOMER", "VENDOR", "FREELANCER", "ADMIN"] as const;
 export const SIGNUP_ROLES = ["CUSTOMER", "VENDOR", "FREELANCER"] as const;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { apiErrorMessage } from "@wedjan/shared";
@@ -108,7 +109,7 @@ export default function SignupPage() {
         </button>
       </form>
       <p className="auth-alt">
-        Already have an account? <a className="text-link" href="/login">Log in</a>
+        Already have an account? <Link className="text-link" href="/login">Log in</Link>
       </p>
     </>
   );
