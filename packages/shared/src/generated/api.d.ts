@@ -266,6 +266,353 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Full 2-level category taxonomy (public) */
+        get: operations["listCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Own vendor profile with all onboarding data + gates + strength */
+        get: operations["getMyVendorProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Step-based partial save of vendor basics */
+        patch: operations["updateMyVendorProfile"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace category selection (1 primary + up to 3 secondary) */
+        put: operations["setMyVendorCategories"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/service-areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a service area */
+        post: operations["addServiceArea"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/service-areas/{areaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a service area */
+        delete: operations["deleteServiceArea"];
+        options?: never;
+        head?: never;
+        /** Update a service area */
+        patch: operations["updateServiceArea"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a package (draft) — price is mandatory, always (Law #1) */
+        post: operations["createPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Archive a package */
+        delete: operations["deletePackage"];
+        options?: never;
+        head?: never;
+        /** Update a package */
+        patch: operations["updatePackage"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish (gates: price>0, ≥3 included items, cover photo) */
+        post: operations["publishPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unpublish back to draft */
+        post: operations["unpublishPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/add-ons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an add-on (package-scoped or vendor-wide) */
+        post: operations["createAddOn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/add-ons/{addOnId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete an add-on */
+        delete: operations["deleteAddOn"];
+        options?: never;
+        head?: never;
+        /** Update an add-on */
+        patch: operations["updateAddOn"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the vendor media set (gallery, cover, logo) with sort order */
+        put: operations["setVendorMedia"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace FAQ list (max 12) */
+        put: operations["setVendorFaqs"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Attach an uploaded media asset as a verification document
+         * @description Re-uploading the same type supersedes the previous pending/rejected document.
+         */
+        post: operations["uploadVerificationDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit for verification — validates every completeness gate */
+        post: operations["submitVendorProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public vendor profile (VERIFIED vendors only) */
+        get: operations["getPublicVendorProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/{slug}/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published, transparently-priced packages for a verified vendor */
+        get: operations["getPublicVendorPackages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verification document queue (ADMIN) */
+        get: operations["listVerifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications/{documentId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a document — grants badges; flips SUBMITTED vendors to VERIFIED */
+        post: operations["approveVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications/{documentId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a document with a note the vendor sees */
+        post: operations["rejectVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -468,6 +815,282 @@ export interface components {
             /** @enum {string} */
             status: "ok";
             version?: string;
+        };
+        Category: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            /** Format: uuid */
+            parentId?: string;
+            /** @description Material Symbols icon name */
+            icon?: string;
+            sort: number;
+            isActive: boolean;
+        };
+        CategoryListResponse: {
+            items: components["schemas"]["Category"][];
+        };
+        /** @enum {string} */
+        VendorStatus: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED" | "REJECTED" | "SUSPENDED";
+        /** @enum {string} */
+        PricingModel: "FLAT" | "PER_HOUR" | "PER_GUEST" | "STARTING_AT";
+        /** @enum {string} */
+        BookingMode: "INSTANT" | "REQUEST";
+        /** @enum {string} */
+        CancellationPolicy: "FLEXIBLE" | "MODERATE" | "STRICT";
+        /** @enum {string} */
+        PackageStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+        /** @enum {string} */
+        VendorMediaKind: "GALLERY" | "COVER" | "LOGO" | "SHOWREEL";
+        /** @enum {string} */
+        VerificationDocumentType: "BUSINESS_REGISTRATION" | "GOVERNMENT_ID" | "INSURANCE" | "PORTFOLIO_PROOF";
+        /** @enum {string} */
+        VerificationDocumentStatus: "PENDING" | "APPROVED" | "REJECTED";
+        /** @enum {string} */
+        BadgeType: "IDENTITY_VERIFIED" | "BUSINESS_VERIFIED" | "INSURED" | "TOP_RATED" | "RISING_STAR";
+        VendorProfile: {
+            /** Format: uuid */
+            accountId: string;
+            businessName?: string;
+            slug?: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity?: string;
+            baseCountry?: string;
+            lat?: number;
+            lng?: number;
+            website?: string;
+            instagram?: string;
+            status: components["schemas"]["VendorStatus"];
+            rejectionReason?: string;
+            onboardingStep: number;
+            currency: components["schemas"]["Currency"];
+        };
+        VendorProfileUpdateRequest: {
+            businessName?: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity?: string;
+            baseCountry?: string;
+            lat?: number;
+            lng?: number;
+            website?: string;
+            instagram?: string;
+            currency?: components["schemas"]["Currency"];
+            onboardingStep?: number;
+        };
+        VendorCategorySelection: {
+            /** Format: uuid */
+            categoryId: string;
+            isPrimary: boolean;
+        };
+        VendorCategoriesRequest: {
+            items: components["schemas"]["VendorCategorySelection"][];
+        };
+        ServiceAreaRequest: {
+            /** @enum {string} */
+            mode: "CITY_RADIUS" | "REGION";
+            city: string;
+            country: string;
+            lat?: number;
+            lng?: number;
+            radiusKm?: number;
+            /** Format: int64 */
+            travelFeeCents?: number;
+            travelFeeNote?: string;
+        };
+        ServiceArea: components["schemas"]["ServiceAreaRequest"] & {
+            /** Format: uuid */
+            id: string;
+        };
+        PackageRequest: {
+            title: string;
+            /** Format: uuid */
+            categoryId: string;
+            descriptionMd?: string;
+            /**
+             * Format: int64
+             * @description Real price in minor units — zero/absent is impossible by design (Law #1).
+             */
+            priceCents: number;
+            pricingModel: components["schemas"]["PricingModel"];
+            minGuests?: number;
+            maxGuests?: number;
+            durationMinutes?: number;
+            whatsIncludedMd?: string;
+            whatsExcludedMd?: string;
+            bookingMode?: components["schemas"]["BookingMode"];
+            depositPct?: number;
+            cancellationPolicy?: components["schemas"]["CancellationPolicy"];
+            /** Format: uuid */
+            coverMediaId?: string;
+            sort?: number;
+        };
+        Package: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            categoryId: string;
+            title: string;
+            slug: string;
+            descriptionMd?: string;
+            /** Format: int64 */
+            priceCents: number;
+            currency: components["schemas"]["Currency"];
+            pricingModel: components["schemas"]["PricingModel"];
+            minGuests?: number;
+            maxGuests?: number;
+            durationMinutes?: number;
+            whatsIncludedMd?: string;
+            whatsExcludedMd?: string;
+            bookingMode: components["schemas"]["BookingMode"];
+            depositPct: number;
+            cancellationPolicy: components["schemas"]["CancellationPolicy"];
+            status: components["schemas"]["PackageStatus"];
+            /** Format: uuid */
+            coverMediaId?: string;
+            coverUrl?: string;
+            sort?: number;
+        };
+        AddOnRequest: {
+            /**
+             * Format: uuid
+             * @description Omit for a vendor-wide add-on.
+             */
+            packageId?: string;
+            title: string;
+            /** Format: int64 */
+            priceCents: number;
+            pricingModel: components["schemas"]["PricingModel"];
+            maxQty?: number;
+            description?: string;
+        };
+        AddOn: components["schemas"]["AddOnRequest"] & {
+            /** Format: uuid */
+            id: string;
+        };
+        VendorMediaItemRequest: {
+            /** Format: uuid */
+            mediaId: string;
+            kind: components["schemas"]["VendorMediaKind"];
+            caption?: string;
+            sort?: number;
+        };
+        VendorMediaRequest: {
+            items: components["schemas"]["VendorMediaItemRequest"][];
+        };
+        VendorMediaItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            mediaId: string;
+            kind: components["schemas"]["VendorMediaKind"];
+            caption?: string;
+            sort: number;
+            url?: string;
+            width?: number;
+            height?: number;
+            blurhash?: string;
+        };
+        VendorFaqItem: {
+            question: string;
+            answerMd: string;
+        };
+        VendorFaqsRequest: {
+            items: components["schemas"]["VendorFaqItem"][];
+        };
+        VerificationDocumentRequest: {
+            type: components["schemas"]["VerificationDocumentType"];
+            /** Format: uuid */
+            mediaId: string;
+        };
+        VerificationDocument: {
+            /** Format: uuid */
+            id: string;
+            type: components["schemas"]["VerificationDocumentType"];
+            status: components["schemas"]["VerificationDocumentStatus"];
+            reviewerNote?: string;
+            /** Format: date-time */
+            reviewedAt?: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        VendorBadge: {
+            badge: components["schemas"]["BadgeType"];
+            /** Format: date-time */
+            grantedAt: string;
+            /** Format: date-time */
+            expiresAt?: string;
+        };
+        SubmitGate: {
+            /** @description Stable gate id */
+            key: string;
+            step: number;
+            passed: boolean;
+            message: string;
+        };
+        VendorMeResponse: {
+            profile: components["schemas"]["VendorProfile"];
+            categories: components["schemas"]["VendorCategorySelection"][];
+            serviceAreas: components["schemas"]["ServiceArea"][];
+            packages: components["schemas"]["Package"][];
+            addOns: components["schemas"]["AddOn"][];
+            media: components["schemas"]["VendorMediaItem"][];
+            faqs: components["schemas"]["VendorFaqItem"][];
+            documents: components["schemas"]["VerificationDocument"][];
+            badges: components["schemas"]["VendorBadge"][];
+            gates: components["schemas"]["SubmitGate"][];
+            listingStrength: number;
+        };
+        VendorPublicResponse: {
+            slug: string;
+            businessName: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity: string;
+            baseCountry: string;
+            website?: string;
+            instagram?: string;
+            currency: components["schemas"]["Currency"];
+            categories: components["schemas"]["Category"][];
+            packages: components["schemas"]["Package"][];
+            addOns?: components["schemas"]["AddOn"][];
+            media: components["schemas"]["VendorMediaItem"][];
+            faqs: components["schemas"]["VendorFaqItem"][];
+            badges: components["schemas"]["VendorBadge"][];
+            serviceAreas: components["schemas"]["ServiceArea"][];
+        };
+        VerificationQueueItem: {
+            document: components["schemas"]["VerificationDocument"];
+            /** Format: uuid */
+            vendorAccountId: string;
+            businessName: string;
+            vendorStatus: components["schemas"]["VendorStatus"];
+            mediaUrl?: string;
+        };
+        VerificationQueueResponse: {
+            items: components["schemas"]["VerificationQueueItem"][];
+            nextCursor?: string;
+        };
+        VerificationReviewRequest: {
+            note?: string;
+            /**
+             * Format: date-time
+             * @description For INSURANCE approvals — badge expiry.
+             */
+            expiresAt?: string;
         };
     };
     responses: {
@@ -888,6 +1511,598 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active categories, parents before children. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListResponse"];
+                };
+            };
+        };
+    };
+    getMyVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The vendor workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    updateMyVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    setMyVendorCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorCategoriesRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    addServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceArea"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deleteServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceArea"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PackageRequest"];
+            };
+        };
+        responses: {
+            /** @description Created draft package. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deletePackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archived. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updatePackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PackageRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    publishPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    unpublishPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Draft again. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddOnRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddOn"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deleteAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addOnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addOnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddOnRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddOn"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    setVendorMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorMediaRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    setVendorFaqs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorFaqsRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    uploadVerificationDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document queued for review. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    submitVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Submitted for review. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            /** @description One or more gates failed — fieldErrors name each step. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    getPublicVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The public profile with published packages. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorPublicResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getPublicVendorPackages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published packages with a price on every item. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"][];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listVerifications: {
+        parameters: {
+            query?: {
+                status?: "PENDING" | "APPROVED" | "REJECTED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queue page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationQueueResponse"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    approveVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["VerificationReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Approved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    rejectVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Rejected. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
         };

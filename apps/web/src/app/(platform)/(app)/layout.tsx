@@ -14,6 +14,7 @@ const NAV_BY_ROLE: Record<Role, { href: string; icon: string; label: string }[]>
   ],
   VENDOR: [
     { href: "/dashboard", icon: "storefront", label: "Dashboard" },
+    { href: "/vendor/onboarding", icon: "edit_note", label: "Edit listing" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
   FREELANCER: [
@@ -22,6 +23,7 @@ const NAV_BY_ROLE: Record<Role, { href: string; icon: string; label: string }[]>
   ],
   ADMIN: [
     { href: "/dashboard", icon: "shield_person", label: "Admin" },
+    { href: "/admin/verifications", icon: "verified_user", label: "Verifications" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
 };

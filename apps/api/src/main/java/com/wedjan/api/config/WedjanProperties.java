@@ -5,7 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Typed view over the wedjan.* configuration tree. */
 @ConfigurationProperties(prefix = "wedjan")
-public record WedjanProperties(Auth auth, Cors cors, Mail mail, Media media, Seed seed) {
+public record WedjanProperties(Auth auth, Cors cors, Mail mail, Media media, Seed seed,
+        String publicWebUrl) {
 
     public record Auth(
             String jwtSecret,

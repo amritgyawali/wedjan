@@ -14,6 +14,13 @@ export type Session = components["schemas"]["Session"];
 export type MediaAsset = components["schemas"]["MediaAsset"];
 export type MediaKind = components["schemas"]["MediaKind"];
 export type ErrorEnvelope = components["schemas"]["ErrorEnvelope"];
+export type Category = components["schemas"]["Category"];
+export type VendorMe = components["schemas"]["VendorMeResponse"];
+export type VendorProfile = components["schemas"]["VendorProfile"];
+export type VendorPublic = components["schemas"]["VendorPublicResponse"];
+export type VendorPackage = components["schemas"]["Package"];
+export type VendorMediaItem = components["schemas"]["VendorMediaItem"];
+export type SubmitGate = components["schemas"]["SubmitGate"];
 
 export const ROLES = ["CUSTOMER", "VENDOR", "FREELANCER", "ADMIN"] as const;
 export const SIGNUP_ROLES = ["CUSTOMER", "VENDOR", "FREELANCER"] as const;
