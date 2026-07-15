@@ -1,0 +1,59 @@
+/*
+ * wedjan design tokens — CSS custom properties for NEW surfaces.
+ *
+ * The frozen homepage keeps its own tokens in apps/web/src/app/globals.css;
+ * this file exposes the same brand values (plus semantic aliases and
+ * feedback colors) as --wj-* custom properties so every new route builds
+ * in the identical visual language without touching the frozen files.
+ * Plain CSS (no Tailwind directives) so it can be imported from any
+ * stylesheet or bundler, web or docs.
+ */
+
+:root {
+  /* Brand palette (mirrors the frozen homepage) */
+  --wj-color-background: #f9f9f9;
+  --wj-color-surface: #ffffff;
+  --wj-color-surface-gray: #f4f4f4;
+  --wj-color-surface-variant: #e2e2e2;
+  --wj-color-on-surface: #1a1c1c;
+  --wj-color-secondary: #5e5e5e;
+  --wj-color-text-muted: #757575;
+  --wj-color-brand-pink: #e72e77;
+  --wj-color-brand-pink-dark: #d12166;
+  --wj-color-primary-deep: #8f0043;
+  --wj-color-pink-soft: #fff0f4;
+  --wj-color-tertiary: #006b20;
+  --wj-color-pure-white: #ffffff;
+
+  /* Semantic + feedback (new surfaces only) */
+  --wj-color-primary: var(--wj-color-brand-pink);
+  --wj-color-primary-hover: var(--wj-color-brand-pink-dark);
+  --wj-color-success: #006b20;
+  --wj-color-warning: #a15c00;
+  --wj-color-danger: #b3261e;
+  --wj-color-danger-soft: #fdeceb;
+
+  /* Typography — Devanagari-capable stacks (Kathmandu ↔ Melbourne corridor) */
+  --wj-font-display: var(--font-playfair), "Noto Serif Devanagari", Georgia, serif;
+  --wj-font-body: var(--font-jakarta), "Noto Sans Devanagari", Arial, sans-serif;
+
+  /* Radii */
+  --wj-radius-sm: 6px;
+  --wj-radius-md: 10px;
+  --wj-radius-lg: 12px;
+  --wj-radius-xl: 16px;
+  --wj-radius-2xl: 24px;
+  --wj-radius-pill: 999px;
+
+  /* Shadows */
+  --wj-shadow-ambient: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --wj-shadow-ambient-hover: 0 15px 40px rgba(0, 0, 0, 0.08);
+  --wj-shadow-brand: 0 5px 15px rgba(231, 46, 119, 0.24);
+  --wj-shadow-brand-hover: 0 8px 20px rgba(231, 46, 119, 0.3);
+  --wj-shadow-dialog: 0 28px 80px rgba(0, 0, 0, 0.2);
+
+  /* Layout */
+  --wj-max-content-width: 1280px;
+  --wj-header-height: 80px;
+  --wj-min-touch: 44px;
+}

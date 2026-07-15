@@ -1,0 +1,69 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useAuth } from "@/components/platform/auth-context";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      router.push("/dashboard");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Login failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <>
+      <h1>Welcome back</h1>
+      <p>Log in to keep planning, selling, or working events.</p>
+      <form className="auth-form" onSubmit={onSubmit}>
+        <label className="form-label">
+          Email
+          <input
+            className="form-input"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </label>
+        <label className="form-label">
+          Password
+          <input
+            className="form-input"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+        {error && <div className="auth-error">{error}</div>}
+        <button className="primary-button auth-submit" type="submit" disabled={submitting}>
+          {submitting ? "Logging in…" : "Log in"}
+        </button>
+      </form>
+      <p className="auth-alt">
+        <a className="text-link" href="/forgot-password">Forgot password?</a>
+      </p>
+      <p className="auth-alt">
+        New to wedjan? <a className="text-link" href="/signup">Create an account</a>
+      </p>
+    </>
+  );
+}

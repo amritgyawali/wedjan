@@ -1,0 +1,435 @@
+/*
+ * Platform surfaces (auth + app shell) — same visual language as the frozen
+ * homepage, built on @wedjan/ui-tokens custom properties. The homepage's
+ * globals.css remains untouched and is still loaded globally (fonts, resets,
+ * .form-input, .primary-button, etc. are reused deliberately).
+ */
+@import "@wedjan/ui-tokens/tokens.css";
+
+/* ---------- auth pages ---------- */
+
+.auth-shell {
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(231, 46, 119, 0.07), transparent 60%),
+    var(--wj-color-background);
+}
+
+.auth-card {
+  width: min(440px, 100%);
+  border: 1px solid rgba(226, 226, 226, 0.8);
+  border-radius: var(--wj-radius-2xl);
+  padding: 34px;
+  background: var(--wj-color-surface);
+  box-shadow: var(--wj-shadow-ambient);
+}
+
+.auth-card .wordmark {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  font-family: var(--wj-font-display);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.auth-card > p {
+  margin: 0 0 24px;
+  color: var(--wj-color-secondary);
+  font-size: 14px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.auth-alt {
+  margin-top: 20px;
+  color: var(--wj-color-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-error {
+  border: 1px solid rgba(179, 38, 30, 0.25);
+  border-radius: var(--wj-radius-md);
+  padding: 10px 14px;
+  background: var(--wj-color-danger-soft);
+  color: var(--wj-color-danger);
+  font-size: 14px;
+}
+
+.auth-success {
+  border: 1px solid rgba(0, 107, 32, 0.25);
+  border-radius: var(--wj-radius-md);
+  padding: 10px 14px;
+  background: #edf7ef;
+  color: var(--wj-color-success);
+  font-size: 14px;
+}
+
+/* Role picker (signup) */
+.role-picker {
+  display: grid;
+  gap: 10px;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1.5px solid var(--wj-color-surface-variant);
+  border-radius: var(--wj-radius-lg);
+  padding: 14px 16px;
+  background: var(--wj-color-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.role-option:hover {
+  border-color: var(--wj-color-brand-pink);
+}
+
+.role-option[data-selected="true"] {
+  border-color: var(--wj-color-brand-pink);
+  background: var(--wj-color-pink-soft);
+  box-shadow: 0 0 0 3px rgba(231, 46, 119, 0.1);
+}
+
+.role-option .icon {
+  color: var(--wj-color-brand-pink);
+}
+
+.role-option strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.role-option span {
+  color: var(--wj-color-secondary);
+  font-size: 13px;
+}
+
+/* OTP input */
+.otp-input {
+  letter-spacing: 0.5em;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- authenticated app shell ---------- */
+
+.app-shell {
+  display: flex;
+  min-height: 100svh;
+  background: var(--wj-color-background);
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  width: 260px;
+  height: 100svh;
+  flex: 0 0 auto;
+  flex-direction: column;
+  border-right: 1px solid rgba(226, 226, 226, 0.7);
+  padding: 24px 16px;
+  background: var(--wj-color-surface);
+}
+
+.app-sidebar .wordmark {
+  padding-inline: 12px;
+  margin-bottom: 28px;
+}
+
+.app-nav {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-nav-link {
+  display: flex;
+  min-height: var(--wj-min-touch);
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--wj-radius-md);
+  padding-inline: 12px;
+  color: var(--wj-color-on-surface);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.app-nav-link:hover {
+  background: var(--wj-color-surface-gray);
+}
+
+.app-nav-link[data-active="true"] {
+  background: var(--wj-color-pink-soft);
+  color: var(--wj-color-brand-pink);
+}
+
+.app-nav-label {
+  padding: 16px 12px 6px;
+  color: var(--wj-color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.role-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid rgba(226, 226, 226, 0.7);
+  padding-top: 16px;
+}
+
+.role-switcher label {
+  padding-inline: 12px;
+  color: var(--wj-color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.role-switcher select {
+  min-height: 40px;
+  border: 1px solid var(--wj-color-surface-variant);
+  border-radius: var(--wj-radius-md);
+  padding-inline: 10px;
+  background: var(--wj-color-surface);
+  cursor: pointer;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 32px clamp(20px, 4vw, 48px) 64px;
+}
+
+.app-page-title {
+  margin: 0 0 4px;
+  font-family: var(--wj-font-display);
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+}
+
+.app-page-subtitle {
+  margin: 0 0 32px;
+  color: var(--wj-color-secondary);
+  font-size: 15px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border: 1.5px dashed var(--wj-color-surface-variant);
+  border-radius: var(--wj-radius-xl);
+  padding: 64px 24px;
+  background: var(--wj-color-surface);
+  text-align: center;
+}
+
+.empty-state .icon {
+  color: var(--wj-color-brand-pink);
+  font-size: 40px;
+}
+
+.empty-state h2 {
+  margin: 0;
+  font-family: var(--wj-font-display);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--wj-color-secondary);
+  font-size: 14px;
+}
+
+/* ---------- settings ---------- */
+
+.settings-grid {
+  display: grid;
+  gap: 24px;
+  max-width: 720px;
+}
+
+.settings-card {
+  border: 1px solid rgba(226, 226, 226, 0.8);
+  border-radius: var(--wj-radius-xl);
+  padding: 24px;
+  background: var(--wj-color-surface);
+}
+
+.settings-card h2 {
+  margin: 0 0 4px;
+  font-family: var(--wj-font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.settings-card > p {
+  margin: 0 0 20px;
+  color: var(--wj-color-secondary);
+  font-size: 13px;
+}
+
+.settings-form {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-form .form-row {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .settings-form .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(226, 226, 226, 0.6);
+  padding-block: 12px;
+}
+
+.session-row:last-child {
+  border-bottom: 0;
+}
+
+.session-meta strong {
+  display: block;
+  font-size: 14px;
+}
+
+.session-meta span {
+  color: var(--wj-color-text-muted);
+  font-size: 12px;
+}
+
+.session-current-chip {
+  border-radius: var(--wj-radius-pill);
+  padding: 4px 10px;
+  background: var(--wj-color-pink-soft);
+  color: var(--wj-color-brand-pink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.danger-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--wj-color-danger);
+  border-radius: var(--wj-radius-pill);
+  padding-inline: 20px;
+  background: transparent;
+  color: var(--wj-color-danger);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.danger-button:hover {
+  background: var(--wj-color-danger);
+  color: #fff;
+}
+
+.ghost-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wj-color-surface-variant);
+  border-radius: var(--wj-radius-pill);
+  padding-inline: 16px;
+  background: transparent;
+  color: var(--wj-color-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.ghost-button:hover {
+  border-color: var(--wj-color-brand-pink);
+  color: var(--wj-color-brand-pink);
+}
+
+/* Mobile: collapse sidebar into a top bar */
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(226, 226, 226, 0.7);
+    padding: 12px 16px;
+    overflow-x: auto;
+  }
+
+  .app-sidebar .wordmark {
+    margin-bottom: 0;
+  }
+
+  .app-nav {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .app-nav-label {
+    display: none;
+  }
+
+  .role-switcher {
+    border-top: 0;
+    padding-top: 0;
+    margin-left: auto;
+  }
+
+  .role-switcher label {
+    display: none;
+  }
+}

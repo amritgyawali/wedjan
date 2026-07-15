@@ -1,22 +1,33 @@
 # Dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+
+# Turborepo
+.turbo/
 
 # Test and coverage output
-/coverage
+coverage/
 
 # Next.js output
-/.next/
-/out/
+.next/
+out/
 
-# Production output
-/build
+# Gradle / Java (apps/api)
+.gradle/
+apps/api/build/
+apps/api/out/
+apps/api/bin/
+
+# Expo / React Native (apps/mobile)
+.expo/
+.expo-shared/
+apps/mobile/dist/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
 # Local environment files
 .env*
@@ -35,7 +46,17 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 *.pem
+.idea/
+*.iml
+.vscode/
+
+# JVM crash dumps
+hs_err_pid*.log
+replay_pid*.log
 
 # TypeScript and Next.js generated files
 *.tsbuildinfo
 next-env.d.ts
+
+# Local docker volumes
+.docker-data/
