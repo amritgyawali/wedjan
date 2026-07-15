@@ -121,3 +121,41 @@ Format per entry:
   the public-domain BlurHash algorithm (`media/BlurHash.java`) instead of a third-party jar.
 - Context: No well-maintained Maven artifact; the algorithm is tiny and stable.
 - Consequences: We own the code (unit-tested); encode only ≤64px thumbnails for cost.
+
+## ADR-010 — Public visibility is independent from verification workflow status
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: `vendor_profiles.is_public` records whether a listing may be served publicly;
+  review workflow remains in `status`. First verification sets both `VERIFIED` and
+  `is_public=true`; later sensitive edits set `UNDER_REVIEW` without clearing `is_public`.
+- Context: A single status enum cannot simultaneously say "this edit needs review" and "the
+  previously approved listing remains live." Treating `UNDER_REVIEW` as private would violate
+  the Phase 2 no-unlisting edge case.
+- Consequences: Public reads require `is_public=true` and reject suspended vendors. Admin
+  suspension remains able to remove a listing immediately; later moderation can version the
+  exact sensitive fields under review.
+
+## ADR-011 — Published package edits snapshot commercial terms by version
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: Before changing any published package, copy its price, currency, pricing model,
+  deposit, cancellation policy, and booking mode into `package_price_versions`, keyed by
+  `(package_id, version)`, then increment the live row version.
+- Context: Editing a listing must not rewrite the commercial terms attached to an existing
+  booking. Phase 4 will create booking snapshots, but Phase 2 already needs a durable source
+  version to snapshot from.
+- Consequences: Phase 4 bookings reference a package version and copy the values they display;
+  the current package row remains efficient for discovery while prior terms are immutable.
+
+## ADR-012 — Phase 2 forms extend the existing token-based CSS system
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: The onboarding wizard uses accessible native controls and focused platform
+  components styled with the existing `--wj-*` tokens; shadcn/ui remains uninstalled.
+- Context: ADR-007 established a single Tailwind root to protect the frozen homepage. The Phase
+  2 controls required no behavior that justified adding a parallel component/theme layer.
+- Consequences: Web and native continue to share the token source rather than component code;
+  shadcn can still be introduced for a future complex primitive if it preserves ADR-001/007.

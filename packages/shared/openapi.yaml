@@ -14,6 +14,9 @@ tags:
   - name: auth
   - name: me
   - name: media
+  - name: catalog
+  - name: vendor
+  - name: admin
   - name: system
 
 paths:
@@ -290,6 +293,416 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/MediaAsset" }
         "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/categories:
+    get:
+      tags: [catalog]
+      operationId: listCategories
+      summary: Full 2-level category taxonomy (public)
+      security: []
+      responses:
+        "200":
+          description: Active categories, parents before children.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoryListResponse" }
+
+  /api/v1/vendors/me:
+    get:
+      tags: [vendor]
+      operationId: getMyVendorProfile
+      summary: Own vendor profile with all onboarding data + gates + strength
+      responses:
+        "200":
+          description: The vendor workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    patch:
+      tags: [vendor]
+      operationId: updateMyVendorProfile
+      summary: Step-based partial save of vendor basics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorProfileUpdateRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/vendors/me/categories:
+    put:
+      tags: [vendor]
+      operationId: setMyVendorCategories
+      summary: "Replace category selection (1 primary + up to 3 secondary)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorCategoriesRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/service-areas:
+    post:
+      tags: [vendor]
+      operationId: addServiceArea
+      summary: Add a service area
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceAreaRequest" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceArea" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/service-areas/{areaId}:
+    patch:
+      tags: [vendor]
+      operationId: updateServiceArea
+      summary: Update a service area
+      parameters:
+        - { name: areaId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceAreaRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceArea" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deleteServiceArea
+      summary: Remove a service area
+      parameters:
+        - { name: areaId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Deleted. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages:
+    post:
+      tags: [vendor]
+      operationId: createPackage
+      summary: "Create a package (draft) — price is mandatory, always (Law #1)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackageRequest" }
+      responses:
+        "201":
+          description: Created draft package.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/packages/{packageId}:
+    patch:
+      tags: [vendor]
+      operationId: updatePackage
+      summary: Update a package
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackageRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deletePackage
+      summary: Archive a package
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Archived. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages/{packageId}/publish:
+    post:
+      tags: [vendor]
+      operationId: publishPackage
+      summary: "Publish (gates: price>0, ≥3 included items, cover photo)"
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Published.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages/{packageId}/unpublish:
+    post:
+      tags: [vendor]
+      operationId: unpublishPackage
+      summary: Unpublish back to draft
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Draft again.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/add-ons:
+    post:
+      tags: [vendor]
+      operationId: createAddOn
+      summary: Create an add-on (package-scoped or vendor-wide)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddOnRequest" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AddOn" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/add-ons/{addOnId}:
+    patch:
+      tags: [vendor]
+      operationId: updateAddOn
+      summary: Update an add-on
+      parameters:
+        - { name: addOnId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddOnRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AddOn" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deleteAddOn
+      summary: Delete an add-on
+      parameters:
+        - { name: addOnId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Deleted. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/media:
+    put:
+      tags: [vendor]
+      operationId: setVendorMedia
+      summary: Replace the vendor media set (gallery, cover, logo) with sort order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorMediaRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/faqs:
+    put:
+      tags: [vendor]
+      operationId: setVendorFaqs
+      summary: Replace FAQ list (max 12)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorFaqsRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/documents:
+    post:
+      tags: [vendor]
+      operationId: uploadVerificationDocument
+      summary: Attach an uploaded media asset as a verification document
+      description: Re-uploading the same type supersedes the previous pending/rejected document.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationDocumentRequest" }
+      responses:
+        "201":
+          description: Document queued for review.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/submit:
+    post:
+      tags: [vendor]
+      operationId: submitVendorProfile
+      summary: Submit for verification — validates every completeness gate
+      responses:
+        "200":
+          description: Submitted for review.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "422":
+          description: One or more gates failed — fieldErrors name each step.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/v1/vendors/{slug}:
+    get:
+      tags: [vendor]
+      operationId: getPublicVendorProfile
+      summary: Public vendor profile (VERIFIED vendors only)
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The public profile with published packages.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorPublicResponse" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/{slug}/packages:
+    get:
+      tags: [vendor]
+      operationId: getPublicVendorPackages
+      summary: Published, transparently-priced packages for a verified vendor
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Published packages with a price on every item.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Package" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/admin/verifications:
+    get:
+      tags: [admin]
+      operationId: listVerifications
+      summary: Verification document queue (ADMIN)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, maximum: 50, default: 20 }
+      responses:
+        "200":
+          description: Queue page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationQueueResponse" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/admin/verifications/{documentId}/approve:
+    post:
+      tags: [admin]
+      operationId: approveVerification
+      summary: Approve a document — grants badges; flips SUBMITTED vendors to VERIFIED
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationReviewRequest" }
+      responses:
+        "200":
+          description: Approved.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/admin/verifications/{documentId}/reject:
+    post:
+      tags: [admin]
+      operationId: rejectVerification
+      summary: Reject a document with a note the vendor sees
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationReviewRequest" }
+      responses:
+        "200":
+          description: Rejected.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
 
@@ -596,6 +1009,410 @@ components:
       properties:
         status: { type: string, enum: [ok] }
         version: { type: string }
+
+    # ------------------------------------------------------------------
+    # Phase 2 — vendor supply
+    # ------------------------------------------------------------------
+
+    Category:
+      type: object
+      required: [id, slug, name, sort, isActive]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        parentId: { type: string, format: uuid }
+        icon: { type: string, description: Material Symbols icon name }
+        sort: { type: integer }
+        isActive: { type: boolean }
+
+    CategoryListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+
+    VendorStatus:
+      type: string
+      enum: [DRAFT, SUBMITTED, UNDER_REVIEW, VERIFIED, REJECTED, SUSPENDED]
+
+    PricingModel:
+      type: string
+      enum: [FLAT, PER_HOUR, PER_GUEST, STARTING_AT]
+
+    BookingMode:
+      type: string
+      enum: [INSTANT, REQUEST]
+
+    CancellationPolicy:
+      type: string
+      enum: [FLEXIBLE, MODERATE, STRICT]
+
+    PackageStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, ARCHIVED]
+
+    VendorMediaKind:
+      type: string
+      enum: [GALLERY, COVER, LOGO, SHOWREEL]
+
+    VerificationDocumentType:
+      type: string
+      enum: [BUSINESS_REGISTRATION, GOVERNMENT_ID, INSURANCE, PORTFOLIO_PROOF]
+
+    VerificationDocumentStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+
+    BadgeType:
+      type: string
+      enum: [IDENTITY_VERIFIED, BUSINESS_VERIFIED, INSURED, TOP_RATED, RISING_STAR]
+
+    VendorProfile:
+      type: object
+      required: [accountId, status, onboardingStep, currency]
+      properties:
+        accountId: { type: string, format: uuid }
+        businessName: { type: string }
+        slug: { type: string }
+        tagline: { type: string }
+        about: { type: string }
+        foundedYear: { type: integer }
+        teamSize: { type: integer }
+        languages:
+          type: array
+          items: { type: string }
+        baseCity: { type: string }
+        baseCountry: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+        website: { type: string }
+        instagram: { type: string }
+        status: { $ref: "#/components/schemas/VendorStatus" }
+        rejectionReason: { type: string }
+        onboardingStep: { type: integer, minimum: 1, maximum: 7 }
+        currency: { $ref: "#/components/schemas/Currency" }
+
+    VendorProfileUpdateRequest:
+      type: object
+      properties:
+        businessName: { type: string, maxLength: 160 }
+        tagline: { type: string, maxLength: 160 }
+        about: { type: string, maxLength: 5000 }
+        foundedYear: { type: integer, minimum: 1900, maximum: 2100 }
+        teamSize: { type: integer, minimum: 1, maximum: 10000 }
+        languages:
+          type: array
+          maxItems: 10
+          items: { type: string, maxLength: 40 }
+        baseCity: { type: string, maxLength: 120 }
+        baseCountry: { type: string, minLength: 2, maxLength: 2 }
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+        website: { type: string, maxLength: 300 }
+        instagram: { type: string, maxLength: 100 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        onboardingStep: { type: integer, minimum: 1, maximum: 7 }
+
+    VendorCategorySelection:
+      type: object
+      required: [categoryId, isPrimary]
+      properties:
+        categoryId: { type: string, format: uuid }
+        isPrimary: { type: boolean }
+
+    VendorCategoriesRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items: { $ref: "#/components/schemas/VendorCategorySelection" }
+
+    ServiceAreaRequest:
+      type: object
+      required: [mode, city, country]
+      properties:
+        mode: { type: string, enum: [CITY_RADIUS, REGION] }
+        city: { type: string, maxLength: 120 }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        lat: { type: number }
+        lng: { type: number }
+        radiusKm: { type: integer, minimum: 1, maximum: 1000 }
+        travelFeeCents: { type: integer, format: int64, minimum: 0 }
+        travelFeeNote: { type: string, maxLength: 300 }
+
+    ServiceArea:
+      allOf:
+        - $ref: "#/components/schemas/ServiceAreaRequest"
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid }
+
+    PackageRequest:
+      type: object
+      required: [title, categoryId, priceCents, pricingModel]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        categoryId: { type: string, format: uuid }
+        descriptionMd: { type: string, maxLength: 10000 }
+        priceCents:
+          type: integer
+          format: int64
+          minimum: 1
+          description: "Real price in minor units — zero/absent is impossible by design (Law #1)."
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        minGuests: { type: integer, minimum: 1 }
+        maxGuests: { type: integer, minimum: 1 }
+        durationMinutes: { type: integer, minimum: 15 }
+        whatsIncludedMd: { type: string, maxLength: 10000 }
+        whatsExcludedMd: { type: string, maxLength: 10000 }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer, minimum: 10, maximum: 100 }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        coverMediaId: { type: string, format: uuid }
+        sort: { type: integer }
+
+    Package:
+      type: object
+      required: [id, vendorId, categoryId, title, slug, priceCents, currency, pricingModel, bookingMode, depositPct, cancellationPolicy, status]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        categoryId: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string }
+        descriptionMd: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        minGuests: { type: integer }
+        maxGuests: { type: integer }
+        durationMinutes: { type: integer }
+        whatsIncludedMd: { type: string }
+        whatsExcludedMd: { type: string }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        status: { $ref: "#/components/schemas/PackageStatus" }
+        coverMediaId: { type: string, format: uuid }
+        coverUrl: { type: string }
+        sort: { type: integer }
+
+    AddOnRequest:
+      type: object
+      required: [title, priceCents, pricingModel]
+      properties:
+        packageId:
+          type: string
+          format: uuid
+          description: Omit for a vendor-wide add-on.
+        title: { type: string, minLength: 2, maxLength: 160 }
+        priceCents: { type: integer, format: int64, minimum: 1 }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        maxQty: { type: integer, minimum: 1, maximum: 999 }
+        description: { type: string, maxLength: 1000 }
+
+    AddOn:
+      allOf:
+        - $ref: "#/components/schemas/AddOnRequest"
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid }
+
+    VendorMediaItemRequest:
+      type: object
+      required: [mediaId, kind]
+      properties:
+        mediaId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/VendorMediaKind" }
+        caption: { type: string, maxLength: 300 }
+        sort: { type: integer }
+
+    VendorMediaRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 60
+          items: { $ref: "#/components/schemas/VendorMediaItemRequest" }
+
+    VendorMediaItem:
+      type: object
+      required: [id, mediaId, kind, sort]
+      properties:
+        id: { type: string, format: uuid }
+        mediaId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/VendorMediaKind" }
+        caption: { type: string }
+        sort: { type: integer }
+        url: { type: string }
+        width: { type: integer }
+        height: { type: integer }
+        blurhash: { type: string }
+
+    VendorFaqItem:
+      type: object
+      required: [question, answerMd]
+      properties:
+        question: { type: string, minLength: 5, maxLength: 300 }
+        answerMd: { type: string, minLength: 5, maxLength: 3000 }
+
+    VendorFaqsRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 12
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+
+    VerificationDocumentRequest:
+      type: object
+      required: [type, mediaId]
+      properties:
+        type: { $ref: "#/components/schemas/VerificationDocumentType" }
+        mediaId: { type: string, format: uuid }
+
+    VerificationDocument:
+      type: object
+      required: [id, type, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: "#/components/schemas/VerificationDocumentType" }
+        status: { $ref: "#/components/schemas/VerificationDocumentStatus" }
+        reviewerNote: { type: string }
+        reviewedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    VendorBadge:
+      type: object
+      required: [badge, grantedAt]
+      properties:
+        badge: { $ref: "#/components/schemas/BadgeType" }
+        grantedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+
+    SubmitGate:
+      type: object
+      required: [key, step, passed, message]
+      properties:
+        key: { type: string, description: Stable gate id, e.g. gallery_min_5 }
+        step: { type: integer, minimum: 1, maximum: 7 }
+        passed: { type: boolean }
+        message: { type: string }
+
+    VendorMeResponse:
+      type: object
+      required: [profile, categories, serviceAreas, packages, addOns, media, faqs, documents, badges, gates, listingStrength]
+      properties:
+        profile: { $ref: "#/components/schemas/VendorProfile" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/VendorCategorySelection" }
+        serviceAreas:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceArea" }
+        packages:
+          type: array
+          items: { $ref: "#/components/schemas/Package" }
+        addOns:
+          type: array
+          items: { $ref: "#/components/schemas/AddOn" }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/VendorMediaItem" }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+        documents:
+          type: array
+          items: { $ref: "#/components/schemas/VerificationDocument" }
+        badges:
+          type: array
+          items: { $ref: "#/components/schemas/VendorBadge" }
+        gates:
+          type: array
+          items: { $ref: "#/components/schemas/SubmitGate" }
+        listingStrength:
+          type: integer
+          minimum: 0
+          maximum: 100
+
+    VendorPublicResponse:
+      type: object
+      required: [slug, businessName, baseCity, baseCountry, currency, categories, packages, media, faqs, badges, serviceAreas]
+      properties:
+        slug: { type: string }
+        businessName: { type: string }
+        tagline: { type: string }
+        about: { type: string }
+        foundedYear: { type: integer }
+        teamSize: { type: integer }
+        languages:
+          type: array
+          items: { type: string }
+        baseCity: { type: string }
+        baseCountry: { type: string }
+        website: { type: string }
+        instagram: { type: string }
+        currency: { $ref: "#/components/schemas/Currency" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+        packages:
+          type: array
+          items: { $ref: "#/components/schemas/Package" }
+        addOns:
+          type: array
+          items: { $ref: "#/components/schemas/AddOn" }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/VendorMediaItem" }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+        badges:
+          type: array
+          items: { $ref: "#/components/schemas/VendorBadge" }
+        serviceAreas:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceArea" }
+
+    VerificationQueueItem:
+      type: object
+      required: [document, vendorAccountId, businessName, vendorStatus]
+      properties:
+        document: { $ref: "#/components/schemas/VerificationDocument" }
+        vendorAccountId: { type: string, format: uuid }
+        businessName: { type: string }
+        vendorStatus: { $ref: "#/components/schemas/VendorStatus" }
+        mediaUrl: { type: string }
+
+    VerificationQueueResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/VerificationQueueItem" }
+        nextCursor: { type: string }
+
+    VerificationReviewRequest:
+      type: object
+      properties:
+        note: { type: string, maxLength: 1000 }
+        expiresAt:
+          type: string
+          format: date-time
+          description: For INSURANCE approvals — badge expiry.
 
 security:
   - bearerAuth: []

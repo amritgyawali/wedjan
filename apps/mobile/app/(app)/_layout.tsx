@@ -43,6 +43,14 @@ export default function AppLayout() {
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>⚙</Text>,
         }}
       />
+      <Tabs.Screen
+        name="vendor"
+        options={{
+          title: "My Listing",
+          href: activeRole === "VENDOR" ? undefined : null,
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>◇</Text>,
+        }}
+      />
     </Tabs>
   );
 }

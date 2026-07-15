@@ -48,6 +48,13 @@ public class MailService {
                         + "\n\nIf this wasn't you, no action is needed.");
     }
 
+    @Async
+    public void sendVendorVerified(String email, String businessName, String publicUrl) {
+        send(email, "Your wedjan listing is live",
+                "Congratulations, " + businessName + " is verified and live on wedjan.\n\n"
+                        + "View your public listing: " + publicUrl);
+    }
+
     private void send(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
