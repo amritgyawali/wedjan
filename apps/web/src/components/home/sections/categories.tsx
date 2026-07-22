@@ -14,7 +14,7 @@ export function CategoriesSection() {
         />
         <div className="flex flex-wrap justify-center gap-8 lg:gap-10">
           {categories.map((category) => (
-            <Link className="category-link group" href="#featured-vendors" key={category.title}>
+            <Link className="category-link group" href={`/search?category=${categorySlug(category.title)}`} key={category.title}>
               <span className="category-image">
                 <Image
                   alt={category.alt}
@@ -32,4 +32,8 @@ export function CategoriesSection() {
       </div>
     </section>
   );
+}
+
+function categorySlug(title: string) {
+  return ({ "Bridal Wear": "attire", "Bridal Makeup": "mua", Photographers: "wedding-photography", Invitations: "invitations-stationery", Catering: "catering" } as Record<string, string>)[title] ?? title.toLowerCase().replaceAll(" ", "-");
 }

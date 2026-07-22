@@ -1,12 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 import { useAuth } from "@/components/platform/auth-context";
+import { authRoute, safeAuthReturnPath } from "@/lib/auth-return";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+  const returnPath = safeAuthReturnPath(searchParams.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +22,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      router.replace(returnPath);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Login failed");
     } finally {
@@ -59,11 +63,24 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="auth-alt">
-        <a className="text-link" href="/forgot-password">Forgot password?</a>
+        <Link className="text-link" href={authRoute("/forgot-password", returnPath)}>
+          Forgot password?
+        </Link>
       </p>
       <p className="auth-alt">
-        New to wedjan? <a className="text-link" href="/signup">Create an account</a>
+        New to wedjan?{" "}
+        <Link className="text-link" href={authRoute("/signup", returnPath)}>
+          Create an account
+        </Link>
       </p>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p>Preparing login…</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }

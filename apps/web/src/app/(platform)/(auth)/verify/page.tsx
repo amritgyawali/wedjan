@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { apiErrorMessage } from "@wedjan/shared";
 import { api } from "@/lib/api";
+import { authRoute, safeAuthReturnPath } from "@/lib/auth-return";
 
 function VerifyForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const returnPath = safeAuthReturnPath(searchParams.get("next"));
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +28,7 @@ function VerifyForm() {
         setError(apiErrorMessage(body, "Verification failed — check the code"));
         return;
       }
-      router.push("/login");
+      router.push(authRoute("/login", returnPath));
     } finally {
       setSubmitting(false);
     }
@@ -68,7 +71,10 @@ function VerifyForm() {
         </button>
       </form>
       <p className="auth-alt">
-        Wrong account? <a className="text-link" href="/signup">Start over</a>
+        Wrong account?{" "}
+        <Link className="text-link" href={authRoute("/signup", returnPath)}>
+          Start over
+        </Link>
       </p>
     </>
   );

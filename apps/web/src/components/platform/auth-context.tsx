@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { apiErrorMessage, type Me, type Role } from "@wedjan/shared";
 import { api, setAccessToken } from "@/lib/api";
 
@@ -37,10 +38,12 @@ function pickActiveRole(me: Me, stored: string | null): Role | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [me, setMe] = useState<Me | null>(null);
   const [activeRole, setActiveRoleState] = useState<Role | null>(null);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accountIdRef = useRef<string | null>(null);
   // Breaks the applySession → scheduleRefresh → refreshSession → applySession
   // cycle without stale closures.
   const refreshSessionRef = useRef<(() => Promise<boolean>) | null>(null);
@@ -55,22 +58,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const applySession = useCallback(
     (accessToken: string, expiresInSeconds: number, account: Me) => {
+      if (accountIdRef.current && accountIdRef.current !== account.account.id) queryClient.clear();
+      accountIdRef.current = account.account.id;
       setAccessToken(accessToken);
       setMe(account);
       setActiveRoleState(pickActiveRole(account, localStorage.getItem(ACTIVE_ROLE_KEY)));
       setStatus("authenticated");
       scheduleRefresh(expiresInSeconds);
     },
-    [scheduleRefresh],
+    [queryClient, scheduleRefresh],
   );
 
   const clearSession = useCallback(() => {
+    const hadAuthenticatedAccount = accountIdRef.current !== null;
     setAccessToken(null);
     setMe(null);
     setActiveRoleState(null);
     setStatus("anonymous");
+    accountIdRef.current = null;
+    if (hadAuthenticatedAccount) queryClient.clear();
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
-  }, []);
+  }, [queryClient]);
 
   const refreshSession = useCallback(async () => {
     const { data, response } = await api.POST("/api/v1/auth/refresh", {});
@@ -108,8 +116,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await api.POST("/api/v1/auth/logout", {});
-    clearSession();
+    try {
+      await api.POST("/api/v1/auth/logout", {});
+    } finally {
+      clearSession();
+    }
   }, [clearSession]);
 
   const refreshMe = useCallback(async () => {

@@ -6,14 +6,21 @@ import { useEffect, type ReactNode } from "react";
 import type { Role } from "@wedjan/shared";
 import { useAuth } from "@/components/platform/auth-context";
 import { Icon } from "@/components/platform/icon";
+import { authRoute } from "@/lib/auth-return";
 
 const NAV_BY_ROLE: Record<Role, { href: string; icon: string; label: string }[]> = {
   CUSTOMER: [
     { href: "/dashboard", icon: "celebration", label: "My Events" },
+    { href: "/bookings", icon: "event_available", label: "Bookings" },
+    { href: "/shortlists", icon: "favorite", label: "Shortlists" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
   VENDOR: [
     { href: "/dashboard", icon: "storefront", label: "Dashboard" },
+    { href: "/vendor/bookings", icon: "inbox", label: "Bookings" },
+    { href: "/vendor/calendar", icon: "calendar_month", label: "Calendar" },
+    { href: "/vendor/onboarding", icon: "edit_note", label: "Edit listing" },
+    { href: "/vendor/showcases", icon: "photo_library", label: "Real events" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
   FREELANCER: [
@@ -22,6 +29,7 @@ const NAV_BY_ROLE: Record<Role, { href: string; icon: string; label: string }[]>
   ],
   ADMIN: [
     { href: "/dashboard", icon: "shield_person", label: "Admin" },
+    { href: "/admin/verifications", icon: "verified_user", label: "Verifications" },
     { href: "/settings", icon: "settings", label: "Settings" },
   ],
 };
@@ -40,9 +48,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (status === "anonymous") {
-      router.replace("/login");
+      const returnPath = `${pathname}${window.location.search}${window.location.hash}`;
+      router.replace(authRoute("/login", returnPath));
     }
-  }, [status, router]);
+  }, [status, pathname, router]);
 
   if (status === "loading" || !me || !activeRole) {
     return (
@@ -66,7 +75,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               key={item.href}
               href={item.href}
               className="app-nav-link"
-              data-active={pathname === item.href}
+              data-active={isNavActive(pathname, item.href)}
             >
               <Icon name={item.icon} />
               {item.label}
@@ -105,4 +114,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <main className="app-main">{children}</main>
     </div>
   );
+}
+
+function isNavActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
 }

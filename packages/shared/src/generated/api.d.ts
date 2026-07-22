@@ -266,6 +266,1004 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Full 2-level category taxonomy (public) */
+        get: operations["listCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Own vendor profile with all onboarding data + gates + strength */
+        get: operations["getMyVendorProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Step-based partial save of vendor basics */
+        patch: operations["updateMyVendorProfile"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace category selection (1 primary + up to 3 secondary) */
+        put: operations["setMyVendorCategories"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/service-areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a service area */
+        post: operations["addServiceArea"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/service-areas/{areaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a service area */
+        delete: operations["deleteServiceArea"];
+        options?: never;
+        head?: never;
+        /** Update a service area */
+        patch: operations["updateServiceArea"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a package (draft) — price is mandatory, always (Law #1) */
+        post: operations["createPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Archive a package */
+        delete: operations["deletePackage"];
+        options?: never;
+        head?: never;
+        /** Update a package */
+        patch: operations["updatePackage"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish (gates: price>0, ≥3 included items, cover photo) */
+        post: operations["publishPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/packages/{packageId}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unpublish back to draft */
+        post: operations["unpublishPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/add-ons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an add-on (package-scoped or vendor-wide) */
+        post: operations["createAddOn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/add-ons/{addOnId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete an add-on */
+        delete: operations["deleteAddOn"];
+        options?: never;
+        head?: never;
+        /** Update an add-on */
+        patch: operations["updateAddOn"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the vendor media set (gallery, cover, logo) with sort order */
+        put: operations["setVendorMedia"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace FAQ list (max 12) */
+        put: operations["setVendorFaqs"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Attach an uploaded media asset as a verification document
+         * @description Re-uploading the same type supersedes the previous pending/rejected document.
+         */
+        post: operations["uploadVerificationDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit for verification — validates every completeness gate */
+        post: operations["submitVendorProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public vendor profile (VERIFIED vendors only) */
+        get: operations["getPublicVendorProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/{slug}/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published, transparently-priced packages for a verified vendor */
+        get: operations["getPublicVendorPackages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verification document queue (ADMIN) */
+        get: operations["listVerifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications/{documentId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a document — grants badges; flips SUBMITTED vendors to VERIFIED */
+        post: operations["approveVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verifications/{documentId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a document with a note the vendor sees */
+        post: operations["rejectVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchVendors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShowcaseFeed"];
+        put?: never;
+        post: operations["createShowcase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/{idOrSlug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShowcase"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteShowcase"];
+        options?: never;
+        head?: never;
+        patch: operations["updateShowcase"];
+        trace?: never;
+    };
+    "/api/v1/showcases/me/owned": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyShowcases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/me/pending-tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPendingShowcaseTags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/tags/{tagId}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["acceptShowcaseTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/showcases/tags/{tagId}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["declineShowcaseTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getFavorites"];
+        put?: never;
+        post: operations["addFavorite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/favorites/{type}/{entityId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeFavorite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getShortlists"];
+        put?: never;
+        post: operations["createShortlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists/{shortlistId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addShortlistItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/shortlists/{shortlistId}/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteShortlistItem"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["comparePackages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seo/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeoRoutes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seo/{country}/{city}/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeoLanding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/{slug}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public per-day availability for a verified vendor
+         * @description Event dates and slot times are venue-local. The response is publicly cached for 60 seconds.
+         */
+        get: operations["getVendorAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Weekly rules, manual/ICS exceptions, mode and timezone */
+        get: operations["getMyAvailabilitySettings"];
+        /** Replace availability mode, timezone and all seven weekly rules */
+        put: operations["updateMyAvailabilitySettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Vendor calendar range with capacity, occupancy and slot statuses */
+        get: operations["getMyAvailabilityCalendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/availability/exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a manual blackout, extra-open date or custom slots */
+        post: operations["createAvailabilityException"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/availability/exceptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteAvailabilityException"];
+        options?: never;
+        head?: never;
+        patch: operations["updateAvailabilityException"];
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listExternalCalendars"];
+        put?: never;
+        post: operations["connectExternalCalendar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendars/{id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["syncExternalCalendar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendars/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["disconnectExternalCalendar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendar-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCalendarExport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/calendar-export/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["rotateCalendarExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar/{token}.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Secret-token iCalendar feed of confirmed bookings */
+        get: operations["getCalendarIcsFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Price and availability preview without creating a booking */
+        post: operations["quoteBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listMyBookings"];
+        put?: never;
+        post: operations["createBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/me/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listVendorBookings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBooking"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["checkoutBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Non-production payment stub; Phase 5 replaces this implementation with Stripe confirmation */
+        post: operations["confirmBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["acceptBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["declineBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/refund-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["previewBookingRefund"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cancelBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["completeBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/dispute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["disputeBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/reschedule-propose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["proposeBookingReschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{id}/reschedule-confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["decideBookingReschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -469,6 +1467,897 @@ export interface components {
             status: "ok";
             version?: string;
         };
+        Category: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            /** Format: uuid */
+            parentId?: string;
+            /** @description Material Symbols icon name */
+            icon?: string;
+            sort: number;
+            isActive: boolean;
+        };
+        CategoryListResponse: {
+            items: components["schemas"]["Category"][];
+        };
+        /** @enum {string} */
+        VendorStatus: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED" | "REJECTED" | "SUSPENDED";
+        /** @enum {string} */
+        PricingModel: "FLAT" | "PER_HOUR" | "PER_GUEST" | "STARTING_AT";
+        /** @enum {string} */
+        BookingMode: "INSTANT" | "REQUEST";
+        /** @enum {string} */
+        CancellationPolicy: "FLEXIBLE" | "MODERATE" | "STRICT";
+        /** @enum {string} */
+        PackageStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+        /** @enum {string} */
+        VendorMediaKind: "GALLERY" | "COVER" | "LOGO" | "SHOWREEL";
+        /** @enum {string} */
+        VerificationDocumentType: "BUSINESS_REGISTRATION" | "GOVERNMENT_ID" | "INSURANCE" | "PORTFOLIO_PROOF";
+        /** @enum {string} */
+        VerificationDocumentStatus: "PENDING" | "APPROVED" | "REJECTED";
+        /** @enum {string} */
+        BadgeType: "IDENTITY_VERIFIED" | "BUSINESS_VERIFIED" | "INSURED" | "TOP_RATED" | "RISING_STAR";
+        VendorProfile: {
+            /** Format: uuid */
+            accountId: string;
+            businessName?: string;
+            slug?: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity?: string;
+            baseCountry?: string;
+            lat?: number;
+            lng?: number;
+            website?: string;
+            instagram?: string;
+            status: components["schemas"]["VendorStatus"];
+            rejectionReason?: string;
+            onboardingStep: number;
+            currency: components["schemas"]["Currency"];
+            availabilityMode: components["schemas"]["AvailabilityMode"];
+            /** @description IANA timezone for venue-local calendar dates and slots. */
+            timezone: string;
+        };
+        VendorProfileUpdateRequest: {
+            businessName?: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity?: string;
+            baseCountry?: string;
+            lat?: number;
+            lng?: number;
+            website?: string;
+            instagram?: string;
+            currency?: components["schemas"]["Currency"];
+            onboardingStep?: number;
+        };
+        VendorCategorySelection: {
+            /** Format: uuid */
+            categoryId: string;
+            isPrimary: boolean;
+        };
+        VendorCategoriesRequest: {
+            items: components["schemas"]["VendorCategorySelection"][];
+        };
+        ServiceAreaRequest: {
+            /** @enum {string} */
+            mode: "CITY_RADIUS" | "REGION";
+            city: string;
+            country: string;
+            lat?: number;
+            lng?: number;
+            radiusKm?: number;
+            /** Format: int64 */
+            travelFeeCents?: number;
+            travelFeeNote?: string;
+        };
+        ServiceArea: components["schemas"]["ServiceAreaRequest"] & {
+            /** Format: uuid */
+            id: string;
+        };
+        PackageRequest: {
+            title: string;
+            /** Format: uuid */
+            categoryId: string;
+            descriptionMd?: string;
+            /**
+             * Format: int64
+             * @description Real price in minor units — zero/absent is impossible by design (Law #1).
+             */
+            priceCents: number;
+            pricingModel: components["schemas"]["PricingModel"];
+            minGuests?: number;
+            maxGuests?: number;
+            durationMinutes?: number;
+            whatsIncludedMd?: string;
+            whatsExcludedMd?: string;
+            bookingMode?: components["schemas"]["BookingMode"];
+            depositPct?: number;
+            cancellationPolicy?: components["schemas"]["CancellationPolicy"];
+            /** @default false */
+            allowSameDay?: boolean;
+            /** Format: uuid */
+            coverMediaId?: string;
+            sort?: number;
+        };
+        Package: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            categoryId: string;
+            title: string;
+            slug: string;
+            descriptionMd?: string;
+            /** Format: int64 */
+            priceCents: number;
+            currency: components["schemas"]["Currency"];
+            pricingModel: components["schemas"]["PricingModel"];
+            minGuests?: number;
+            maxGuests?: number;
+            durationMinutes?: number;
+            whatsIncludedMd?: string;
+            whatsExcludedMd?: string;
+            bookingMode: components["schemas"]["BookingMode"];
+            depositPct: number;
+            cancellationPolicy: components["schemas"]["CancellationPolicy"];
+            status: components["schemas"]["PackageStatus"];
+            allowSameDay: boolean;
+            /** Format: int64 */
+            version: number;
+            /** Format: uuid */
+            coverMediaId?: string;
+            coverUrl?: string;
+            sort?: number;
+        };
+        AddOnRequest: {
+            /**
+             * Format: uuid
+             * @description Omit for a vendor-wide add-on.
+             */
+            packageId?: string;
+            title: string;
+            /** Format: int64 */
+            priceCents: number;
+            pricingModel: components["schemas"]["PricingModel"];
+            maxQty?: number;
+            description?: string;
+        };
+        AddOn: components["schemas"]["AddOnRequest"] & {
+            /** Format: uuid */
+            id: string;
+        };
+        VendorMediaItemRequest: {
+            /** Format: uuid */
+            mediaId: string;
+            kind: components["schemas"]["VendorMediaKind"];
+            caption?: string;
+            sort?: number;
+        };
+        VendorMediaRequest: {
+            items: components["schemas"]["VendorMediaItemRequest"][];
+        };
+        VendorMediaItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            mediaId: string;
+            kind: components["schemas"]["VendorMediaKind"];
+            caption?: string;
+            sort: number;
+            url?: string;
+            width?: number;
+            height?: number;
+            blurhash?: string;
+        };
+        VendorFaqItem: {
+            question: string;
+            answerMd: string;
+        };
+        VendorFaqsRequest: {
+            items: components["schemas"]["VendorFaqItem"][];
+        };
+        VerificationDocumentRequest: {
+            type: components["schemas"]["VerificationDocumentType"];
+            /** Format: uuid */
+            mediaId: string;
+        };
+        VerificationDocument: {
+            /** Format: uuid */
+            id: string;
+            type: components["schemas"]["VerificationDocumentType"];
+            status: components["schemas"]["VerificationDocumentStatus"];
+            reviewerNote?: string;
+            /** Format: date-time */
+            reviewedAt?: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        VendorBadge: {
+            badge: components["schemas"]["BadgeType"];
+            /** Format: date-time */
+            grantedAt: string;
+            /** Format: date-time */
+            expiresAt?: string;
+        };
+        SubmitGate: {
+            /** @description Stable gate id */
+            key: string;
+            step: number;
+            passed: boolean;
+            message: string;
+        };
+        VendorMeResponse: {
+            profile: components["schemas"]["VendorProfile"];
+            categories: components["schemas"]["VendorCategorySelection"][];
+            serviceAreas: components["schemas"]["ServiceArea"][];
+            packages: components["schemas"]["Package"][];
+            addOns: components["schemas"]["AddOn"][];
+            media: components["schemas"]["VendorMediaItem"][];
+            faqs: components["schemas"]["VendorFaqItem"][];
+            documents: components["schemas"]["VerificationDocument"][];
+            badges: components["schemas"]["VendorBadge"][];
+            gates: components["schemas"]["SubmitGate"][];
+            listingStrength: number;
+        };
+        VendorPublicResponse: {
+            slug: string;
+            businessName: string;
+            tagline?: string;
+            about?: string;
+            foundedYear?: number;
+            teamSize?: number;
+            languages?: string[];
+            baseCity: string;
+            baseCountry: string;
+            website?: string;
+            instagram?: string;
+            currency: components["schemas"]["Currency"];
+            categories: components["schemas"]["Category"][];
+            packages: components["schemas"]["Package"][];
+            addOns?: components["schemas"]["AddOn"][];
+            media: components["schemas"]["VendorMediaItem"][];
+            faqs: components["schemas"]["VendorFaqItem"][];
+            badges: components["schemas"]["VendorBadge"][];
+            serviceAreas: components["schemas"]["ServiceArea"][];
+        };
+        VerificationQueueItem: {
+            document: components["schemas"]["VerificationDocument"];
+            /** Format: uuid */
+            vendorAccountId: string;
+            businessName: string;
+            vendorStatus: components["schemas"]["VendorStatus"];
+            mediaUrl?: string;
+        };
+        VerificationQueueResponse: {
+            items: components["schemas"]["VerificationQueueItem"][];
+            nextCursor?: string;
+        };
+        VerificationReviewRequest: {
+            note?: string;
+            /**
+             * Format: date-time
+             * @description For INSURANCE approvals — badge expiry.
+             */
+            expiresAt?: string;
+        };
+        /** @enum {string} */
+        AvailabilityMode: "DATE" | "SLOT";
+        /**
+         * @description VENDOR uses the vendor's saved base location with no travel fee; TRAVEL validates the supplied venue against configured service areas.
+         * @enum {string}
+         */
+        VenueLocationMode: "VENDOR" | "TRAVEL";
+        /** @enum {string} */
+        AvailabilityStatus: "AVAILABLE" | "LIMITED" | "BOOKED" | "BLACKED_OUT";
+        /** @enum {string} */
+        AvailabilityExceptionType: "BLACKOUT" | "EXTRA_OPEN" | "CUSTOM_SLOTS";
+        /** @enum {string} */
+        CalendarSyncStatus: "PENDING" | "HEALTHY" | "DEGRADED";
+        /** @enum {string} */
+        BookingStatus: "DRAFT" | "REQUESTED" | "VENDOR_ACCEPTED" | "PENDING_PAYMENT" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED_BY_CUSTOMER" | "CANCELLED_BY_VENDOR" | "DECLINED" | "EXPIRED" | "DISPUTED";
+        /** @enum {string} */
+        BookingActor: "CUSTOMER" | "VENDOR" | "SYSTEM" | "ADMIN";
+        /** @enum {string} */
+        BookingDeclineReason: "NOT_AVAILABLE" | "SCOPE_MISMATCH" | "PRICE_MISMATCH" | "SCHEDULING_CONFLICT" | "OTHER";
+        /**
+         * @description Server-authorized action for the authenticated booking participant.
+         * @enum {string}
+         */
+        BookingAllowedAction: "CONFIRM_PAYMENT_STUB" | "CANCEL" | "DISPUTE" | "ACCEPT" | "DECLINE" | "COMPLETE" | "PROPOSE_RESCHEDULE" | "RESPOND_RESCHEDULE";
+        AvailabilitySlot: {
+            /**
+             * Format: time
+             * @description Venue-local wall-clock time.
+             */
+            start: string;
+            /**
+             * Format: time
+             * @description Venue-local wall-clock time.
+             */
+            end: string;
+            label?: string;
+        };
+        AvailabilityRuleRequest: {
+            /** @description Sunday is 0. */
+            weekday: number;
+            isAvailable: boolean;
+            slots?: components["schemas"]["AvailabilitySlot"][];
+            jobsPerDay: number;
+        };
+        AvailabilitySettingsRequest: {
+            mode: components["schemas"]["AvailabilityMode"];
+            /** @description IANA timezone. */
+            timezone: string;
+            rules: components["schemas"]["AvailabilityRuleRequest"][];
+        };
+        AvailabilityRule: {
+            /** Format: uuid */
+            id: string;
+            weekday: number;
+            isAvailable: boolean;
+            slots: components["schemas"]["AvailabilitySlot"][];
+            jobsPerDay: number;
+        };
+        AvailabilityExceptionRequest: {
+            /** Format: date */
+            date: string;
+            type: components["schemas"]["AvailabilityExceptionType"];
+            slots?: components["schemas"]["AvailabilitySlot"][];
+            note?: string;
+        };
+        AvailabilityException: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            type: components["schemas"]["AvailabilityExceptionType"];
+            slots: components["schemas"]["AvailabilitySlot"][];
+            note?: string;
+            /** @enum {string} */
+            source: "MANUAL" | "ICS";
+            /** Format: uuid */
+            externalCalendarId?: string;
+        };
+        AvailabilitySettings: {
+            mode: components["schemas"]["AvailabilityMode"];
+            timezone: string;
+            rules: components["schemas"]["AvailabilityRule"][];
+            exceptions: components["schemas"]["AvailabilityException"][];
+        };
+        SlotAvailability: {
+            /** Format: time */
+            start: string;
+            /** Format: time */
+            end: string;
+            label?: string;
+            status: components["schemas"]["AvailabilityStatus"];
+        };
+        AvailabilityDay: {
+            /** Format: date */
+            date: string;
+            status: components["schemas"]["AvailabilityStatus"];
+            capacity: number;
+            occupied: number;
+            slots: components["schemas"]["SlotAvailability"][];
+        };
+        AvailabilityResponse: {
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            mode: components["schemas"]["AvailabilityMode"];
+            /** @description IANA timezone used for all returned dates and slots. */
+            timezone: string;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date-time */
+            serverNow: string;
+            days: components["schemas"]["AvailabilityDay"][];
+        };
+        ExternalCalendarRequest: {
+            /** Format: uri */
+            icsUrl: string;
+        };
+        ExternalCalendar: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uri */
+            icsUrl: string;
+            /** Format: date-time */
+            lastSyncedAt?: string;
+            syncStatus: components["schemas"]["CalendarSyncStatus"];
+            lastError?: string;
+        };
+        CalendarExport: {
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            rotatedAt: string;
+        };
+        BookingAddOnRequest: {
+            /** Format: uuid */
+            addOnId: string;
+            qty: number;
+        };
+        BookingConfigurationRequest: {
+            /** Format: uuid */
+            packageId: string;
+            /** Format: date */
+            eventDate: string;
+            /** Format: time */
+            startTime?: string;
+            /** Format: time */
+            endTime?: string;
+            /** @description IANA venue timezone. */
+            eventTimezone: string;
+            guests?: number;
+            venueLocationMode: components["schemas"]["VenueLocationMode"];
+            venueAddress?: string;
+            /** @description Structured venue city used for REGION service-area matching. */
+            venueCity?: string;
+            /** @description ISO 3166-1 alpha-2 venue country used for REGION service-area matching. */
+            venueCountry?: string;
+            /** Format: double */
+            venueLat?: number;
+            /** Format: double */
+            venueLng?: number;
+            notes?: string;
+            addOns?: components["schemas"]["BookingAddOnRequest"][];
+            /**
+             * Format: int64
+             * @description Rejects the quote/create operation if the published package changed.
+             */
+            expectedPackageVersion?: number;
+        };
+        PriceBreakdown: {
+            currency: components["schemas"]["Currency"];
+            /** Format: int64 */
+            subtotalCents: number;
+            /** Format: int64 */
+            addOnsCents: number;
+            /** Format: int64 */
+            travelFeeCents: number;
+            /** Format: int64 */
+            discountCents: number;
+            /** Format: int64 */
+            totalCents: number;
+            depositPct: number;
+            /** Format: int64 */
+            depositCents: number;
+            cancellationPolicy: components["schemas"]["CancellationPolicy"];
+        };
+        BookingAddOn: {
+            /** Format: uuid */
+            addOnId: string;
+            title: string;
+            qty: number;
+            /** Format: int64 */
+            unitPriceCents: number;
+            /** Format: int64 */
+            totalCents: number;
+        };
+        BookingQuote: {
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            packageTitle: string;
+            bookingMode: components["schemas"]["BookingMode"];
+            price: components["schemas"]["PriceBreakdown"];
+            addOns: components["schemas"]["BookingAddOn"][];
+            availability: components["schemas"]["AvailabilityStatus"];
+            /** Format: date-time */
+            quoteExpiresAt: string;
+        };
+        BookingEvent: {
+            /** Format: uuid */
+            id: string;
+            fromStatus?: components["schemas"]["BookingStatus"];
+            toStatus: components["schemas"]["BookingStatus"];
+            actor: components["schemas"]["BookingActor"];
+            /** Format: uuid */
+            actorId?: string;
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        Reschedule: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            eventDate: string;
+            /** Format: time */
+            startTime?: string;
+            /** Format: time */
+            endTime?: string;
+            eventTimezone: string;
+            customerApproved: boolean;
+            vendorApproved: boolean;
+            /** @enum {string} */
+            status: "PENDING" | "ACCEPTED" | "REJECTED";
+            /** Format: date-time */
+            createdAt: string;
+        };
+        Booking: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            /** Format: uuid */
+            customerId: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            vendorName: string;
+            /** Format: uuid */
+            packageId: string;
+            packageTitle: string;
+            bookingMode: components["schemas"]["BookingMode"];
+            /** Format: date */
+            eventDate: string;
+            /** Format: time */
+            startTime?: string;
+            /** Format: time */
+            endTime?: string;
+            eventTimezone: string;
+            guests?: number;
+            venueLocationMode: components["schemas"]["VenueLocationMode"];
+            venueAddress?: string;
+            venueCity?: string;
+            venueCountry?: string;
+            /** Format: double */
+            venueLat?: number;
+            /** Format: double */
+            venueLng?: number;
+            notes?: string;
+            price: components["schemas"]["PriceBreakdown"];
+            addOns: components["schemas"]["BookingAddOn"][];
+            status: components["schemas"]["BookingStatus"];
+            /** Format: date-time */
+            holdExpiresAt?: string;
+            /** Format: date-time */
+            slaDueAt?: string;
+            /** Format: date-time */
+            paymentDueAt?: string;
+            /** Format: date-time */
+            confirmedAt?: string;
+            /** Format: date-time */
+            completedAt?: string;
+            /** Format: date-time */
+            disputeWindowEndsAt?: string;
+            cancelReason?: string;
+            vendorPenaltyFlag: boolean;
+            /** Format: int64 */
+            version: number;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Use for SLA and payment countdowns without trusting the device clock.
+             */
+            serverNow: string;
+            allowedActions: components["schemas"]["BookingAllowedAction"][];
+            events: components["schemas"]["BookingEvent"][];
+            pendingReschedule?: components["schemas"]["Reschedule"];
+        };
+        BookingList: {
+            items: components["schemas"]["Booking"][];
+            /** @description Opaque continuation cursor; absent on the final page. */
+            nextCursor?: string;
+            /** Format: date-time */
+            serverNow: string;
+        };
+        BookingAcceptRequest: {
+            /** Format: int64 */
+            travelFeeCents?: number;
+            /** @description Optional replacement quantities for add-ons selected in the original request; omit to keep them unchanged. */
+            addOns?: components["schemas"]["BookingAddOnRequest"][];
+            /** Format: int64 */
+            version: number;
+        };
+        BookingDeclineRequest: {
+            reason: components["schemas"]["BookingDeclineReason"];
+            message?: string;
+            /** Format: int64 */
+            version: number;
+        };
+        BookingVersionRequest: {
+            /** Format: int64 */
+            version: number;
+        };
+        BookingCancelRequest: {
+            reason: string;
+            /** Format: int64 */
+            version: number;
+            /**
+             * Format: uuid
+             * @description Required for customer cancellation; use the latest non-expired refund preview.
+             */
+            refundCalculationId?: string;
+        };
+        BookingDisputeRequest: {
+            reason: string;
+            /** Format: int64 */
+            version: number;
+        };
+        RefundCalculation: {
+            /** Format: uuid */
+            calculationId: string;
+            /** Format: uuid */
+            bookingId: string;
+            policy: components["schemas"]["CancellationPolicy"];
+            daysToEvent: number;
+            refundPercent: number;
+            /** Format: int64 */
+            refundableCents: number;
+            /** Format: int64 */
+            nonRefundableCents: number;
+            vendorPenalty: boolean;
+            /** Format: date-time */
+            calculatedAt: string;
+        };
+        RescheduleProposalRequest: {
+            /** Format: date */
+            eventDate: string;
+            /** Format: time */
+            startTime?: string;
+            /** Format: time */
+            endTime?: string;
+            eventTimezone: string;
+            /** Format: int64 */
+            version: number;
+        };
+        RescheduleDecisionRequest: {
+            accept: boolean;
+            /** Format: int64 */
+            version: number;
+        };
+        /** @enum {string} */
+        SearchSort: "RELEVANCE" | "PRICE_ASC" | "PRICE_DESC" | "RATING" | "NEWEST";
+        /** @enum {string} */
+        EventType: "WEDDING" | "CORPORATE" | "BIRTHDAY" | "CULTURAL" | "OTHER";
+        /** @enum {string} */
+        ShowcaseStatus: "DRAFT" | "PUBLISHED" | "FLAGGED";
+        /** @enum {string} */
+        TagStatus: "PENDING" | "ACCEPTED" | "DECLINED";
+        /** @enum {string} */
+        EntityType: "VENDOR" | "SHOWCASE" | "PACKAGE";
+        PackageSummary: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            /** Format: int64 */
+            priceCents: number;
+            currency: components["schemas"]["Currency"];
+            pricingModel: components["schemas"]["PricingModel"];
+            bookingMode: components["schemas"]["BookingMode"];
+            depositPct: number;
+            cancellationPolicy: components["schemas"]["CancellationPolicy"];
+            whatsIncludedMd?: string;
+            coverUrl?: string;
+        };
+        VendorCard: {
+            /** Format: uuid */
+            vendorId: string;
+            slug: string;
+            businessName: string;
+            tagline?: string;
+            city: string;
+            country: string;
+            currency: components["schemas"]["Currency"];
+            categories: string[];
+            cheapestPackage: components["schemas"]["PackageSummary"];
+            badges: string[];
+            coverUrl?: string;
+            /** Format: double */
+            distanceKm?: number;
+            /** @description Empty until Phase 4. */
+            nextAvailableDates: string[];
+            /** Format: double */
+            relevance?: number;
+        };
+        FacetValue: {
+            value: string;
+            /** Format: int64 */
+            count: number;
+        };
+        SearchFacets: {
+            categories: components["schemas"]["FacetValue"][];
+            cities: components["schemas"]["FacetValue"][];
+            badges: components["schemas"]["FacetValue"][];
+            bookingModes: components["schemas"]["FacetValue"][];
+        };
+        RelaxationSuggestion: {
+            type: string;
+            label: string;
+            value: string;
+        };
+        VendorSearchResponse: {
+            items: components["schemas"]["VendorCard"][];
+            facets: components["schemas"]["SearchFacets"];
+            suggestions: components["schemas"]["RelaxationSuggestion"][];
+            nextCursor?: string;
+            /** Format: int64 */
+            total: number;
+        };
+        ShowcaseMediaRequest: {
+            /** Format: uuid */
+            mediaId: string;
+            caption?: string;
+            sort?: number;
+        };
+        ShowcaseVendorTagRequest: {
+            /** Format: uuid */
+            vendorId: string;
+            roleLabel: string;
+        };
+        ShowcaseRequest: {
+            title: string;
+            eventType: components["schemas"]["EventType"];
+            /** Format: date */
+            eventDate?: string;
+            city: string;
+            country: string;
+            /** Format: uuid */
+            coverMediaId: string;
+            descriptionMd?: string;
+            styleTags?: string[];
+            media: components["schemas"]["ShowcaseMediaRequest"][];
+            vendorTags?: components["schemas"]["ShowcaseVendorTagRequest"][];
+            status?: components["schemas"]["ShowcaseStatus"];
+        };
+        ShowcaseMedia: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            mediaId: string;
+            caption?: string;
+            sort: number;
+            url: string;
+            width?: number;
+            height?: number;
+            blurhash?: string;
+        };
+        ShowcaseVendorTag: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            businessName: string;
+            roleLabel: string;
+            status: components["schemas"]["TagStatus"];
+        };
+        Showcase: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerVendorId: string;
+            ownerVendorSlug: string;
+            ownerBusinessName: string;
+            title: string;
+            slug: string;
+            eventType: components["schemas"]["EventType"];
+            /** Format: date */
+            eventDate?: string;
+            city: string;
+            country: string;
+            descriptionMd?: string;
+            status: components["schemas"]["ShowcaseStatus"];
+            styleTags: string[];
+            coverUrl?: string;
+            media: components["schemas"]["ShowcaseMedia"][];
+            vendorTags: components["schemas"]["ShowcaseVendorTag"][];
+            /** Format: date-time */
+            createdAt: string;
+            favorite: boolean;
+        };
+        ShowcaseFeedResponse: {
+            items: components["schemas"]["Showcase"][];
+            nextCursor?: string;
+        };
+        FavoriteRequest: {
+            entityType: components["schemas"]["EntityType"];
+            /** Format: uuid */
+            entityId: string;
+        };
+        Favorite: {
+            entityType: components["schemas"]["EntityType"];
+            /** Format: uuid */
+            entityId: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FavoriteListResponse: {
+            items: components["schemas"]["Favorite"][];
+        };
+        ShortlistRequest: {
+            name: string;
+        };
+        ShortlistItemRequest: {
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            packageId?: string;
+            note?: string;
+        };
+        ShortlistItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorSlug: string;
+            businessName: string;
+            /** Format: uuid */
+            packageId?: string;
+            packageTitle?: string;
+            /** Format: int64 */
+            priceCents?: number;
+            currency?: components["schemas"]["Currency"];
+            note?: string;
+        };
+        Shortlist: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            items: components["schemas"]["ShortlistItem"][];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ShortlistListResponse: {
+            items: components["schemas"]["Shortlist"][];
+        };
+        CompareResponse: {
+            items: components["schemas"]["VendorCard"][];
+            displayCurrency: components["schemas"]["Currency"];
+            approximatePrices: {
+                [key: string]: number;
+            };
+            fxNotice: string;
+        };
+        SeoFaq: {
+            question: string;
+            answer: string;
+        };
+        LandingPage: {
+            country: string;
+            city: string;
+            categorySlug: string;
+            categoryName: string;
+            /** Format: int64 */
+            vendorCount: number;
+            /** Format: int64 */
+            minimumPriceCents?: number;
+            /** Format: int64 */
+            maximumPriceCents?: number;
+            /** Format: int64 */
+            medianPriceCents?: number;
+            currency: components["schemas"]["Currency"];
+            vendors: components["schemas"]["VendorCard"][];
+            faqs: components["schemas"]["SeoFaq"][];
+            siblingCities: string[];
+            siblingCategories: string[];
+        };
+        LandingRoute: {
+            country: string;
+            city: string;
+            category: string;
+        };
+        LandingRouteList: {
+            items: components["schemas"]["LandingRoute"][];
+        };
     };
     responses: {
         /** @description Request failed validation. */
@@ -516,10 +2405,24 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
+        /** @description The requested operation conflicts with current availability or aggregate state. */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
     };
     parameters: {
         /** @description Client type. "mobile" makes token endpoints return the refresh token in the body (SecureStore) instead of an httpOnly cookie. */
         ClientHeader: "web" | "mobile";
+        /**
+         * @description Caller-generated key for booking creation. Reusing the same key with the
+         *     same request returns the original booking; a different request returns 409.
+         */
+        IdempotencyKey: string;
     };
     requestBodies: never;
     headers: never;
@@ -890,6 +2793,1822 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    listCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active categories, parents before children. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListResponse"];
+                };
+            };
+        };
+    };
+    getMyVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The vendor workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    updateMyVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    setMyVendorCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorCategoriesRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    addServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceArea"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deleteServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateServiceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceArea"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PackageRequest"];
+            };
+        };
+        responses: {
+            /** @description Created draft package. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deletePackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archived. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updatePackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PackageRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    publishPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    unpublishPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Draft again. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddOnRequest"];
+            };
+        };
+        responses: {
+            /** @description Created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddOn"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    deleteAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addOnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateAddOn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addOnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddOnRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddOn"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    setVendorMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorMediaRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    setVendorFaqs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorFaqsRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated workspace view. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    uploadVerificationDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Document queued for review. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    submitVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Submitted for review. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorMeResponse"];
+                };
+            };
+            /** @description One or more gates failed — fieldErrors name each step. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    getPublicVendorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The public profile with published packages. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorPublicResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getPublicVendorPackages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published packages with a price on every item. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Package"][];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listVerifications: {
+        parameters: {
+            query?: {
+                status?: "PENDING" | "APPROVED" | "REJECTED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queue page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationQueueResponse"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    approveVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["VerificationReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Approved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    rejectVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Rejected. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocument"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    searchVendors: {
+        parameters: {
+            query?: {
+                q?: string;
+                category?: string;
+                city?: string;
+                lat?: number;
+                lng?: number;
+                radius?: number;
+                price_min?: number;
+                price_max?: number;
+                guests?: number;
+                badges?: string[];
+                booking_mode?: components["schemas"]["BookingMode"];
+                /** @description Return only vendors that are truly bookable on this venue-local date. */
+                date?: string;
+                sort?: components["schemas"]["SearchSort"];
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Filtered vendor cards with facets */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorSearchResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+        };
+    };
+    getShowcaseFeed: {
+        parameters: {
+            query?: {
+                eventType?: components["schemas"]["EventType"];
+                city?: string;
+                styleTags?: string[];
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published inspiration feed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    createShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowcaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published showcase */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateShowcase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idOrSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowcaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getMyShowcases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vendor showcases */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    getPendingShowcaseTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tags awaiting response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowcaseFeedResponse"];
+                };
+            };
+        };
+    };
+    acceptShowcaseTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tagId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    declineShowcaseTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tagId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Declined */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Showcase"];
+                };
+            };
+        };
+    };
+    getFavorites: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favorites */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteListResponse"];
+                };
+            };
+        };
+    };
+    addFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavoriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Favorited */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Favorite"];
+                };
+            };
+        };
+    };
+    removeFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: components["schemas"]["EntityType"];
+                entityId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getShortlists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Shortlists */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShortlistListResponse"];
+                };
+            };
+        };
+    };
+    createShortlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShortlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shortlist"];
+                };
+            };
+        };
+    };
+    addShortlistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortlistId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShortlistItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shortlist"];
+                };
+            };
+        };
+    };
+    deleteShortlistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortlistId: string;
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    comparePackages: {
+        parameters: {
+            query: {
+                packageIds: string[];
+                currency?: components["schemas"]["Currency"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Package comparison */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareResponse"];
+                };
+            };
+        };
+    };
+    getSeoRoutes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active landing routes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingRouteList"];
+                };
+            };
+        };
+    };
+    getSeoLanding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                country: string;
+                city: string;
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live category-city content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingPage"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getVendorAvailability: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Availability range */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getMyAvailabilitySettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vendor availability settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilitySettings"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    updateMyAvailabilitySettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilitySettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilitySettings"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getMyAvailabilityCalendar: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Calendar range */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    createAvailabilityException: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityExceptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created exception */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityException"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    deleteAvailabilityException: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    updateAvailabilityException: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityExceptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated exception */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityException"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listExternalCalendars: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connected ICS calendars and their latest sync state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalCalendar"][];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    connectExternalCalendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalCalendarRequest"];
+            };
+        };
+        responses: {
+            /** @description Connected and initial sync attempted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalCalendar"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    syncExternalCalendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sync attempted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalCalendar"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    disconnectExternalCalendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Disconnected and its imported exceptions removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getCalendarExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current secret ICS export URL */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarExport"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    rotateCalendarExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rotated secret ICS export URL */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarExport"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getCalendarIcsFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description RFC 5545 calendar feed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/calendar": string;
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    quoteBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingConfigurationRequest"];
+            };
+        };
+        responses: {
+            /** @description Short-lived server-calculated quote */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingQuote"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listMyBookings: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["BookingStatus"];
+                /** @description Opaque continuation cursor from the prior page. */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Customer bookings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingList"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    createBooking: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Caller-generated key for booking creation. Reusing the same key with the
+                 *     same request returns the original booking; a different request returns 409.
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingConfigurationRequest"];
+            };
+        };
+        responses: {
+            /** @description DRAFT instant booking or REQUESTED request-to-book */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listVendorBookings: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["BookingStatus"];
+                /** @description Opaque continuation cursor from the prior page. */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vendor booking inbox ordered by urgency */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingList"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Participant-specific booking detail and allowed actions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    checkoutBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingVersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Booking handed to the payment window */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    confirmBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingVersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Confirmed booking */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    acceptBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingAcceptRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted and soft-held for customer payment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    declineBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingDeclineRequest"];
+            };
+        };
+        responses: {
+            /** @description Declined booking */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    previewBookingRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Actor-aware cancellation calculation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundCalculation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    cancelBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingCancelRequest"];
+            };
+        };
+        responses: {
+            /** @description Cancelled booking */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    completeBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingVersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Completed booking with dispute deadline */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    disputeBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingDisputeRequest"];
+            };
+        };
+        responses: {
+            /** @description Dispute flagged */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    proposeBookingReschedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RescheduleProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Proposal recorded without reserving the new date */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    decideBookingReschedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RescheduleDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Proposal accepted/rejected; mutual acceptance rechecks availability */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
         };
     };
     health: {

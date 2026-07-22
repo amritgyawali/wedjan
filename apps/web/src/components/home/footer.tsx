@@ -35,7 +35,7 @@ export function Footer() {
               <div className="flex flex-col gap-4" key={group.title}>
                 <h3 className="font-display text-lg font-semibold">{group.title}</h3>
                 {group.links.map((link) => (
-                  <Link className="footer-link" href="#" key={link}>
+                  <Link className="footer-link" href={footerHref(link)} key={link}>
                     {link}
                   </Link>
                 ))}
@@ -57,4 +57,10 @@ export function Footer() {
       </div>
     </footer>
   );
+}
+
+function footerHref(label: string) {
+  if (label === "Vendor Login") return "/login";
+  if (label === "Register as Vendor") return "/signup?role=VENDOR";
+  return "#";
 }

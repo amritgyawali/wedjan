@@ -26,18 +26,10 @@ export function HeroSearch() {
       return;
     }
 
-    const vendorLabel = vendorTypes.find((item) => item.value === vendorType)?.label;
-    const cityLabel = cities.find((item) => item.value === city)?.label;
-    const url = new URL(window.location.href);
-    url.searchParams.set("vendor", vendorType);
-    url.searchParams.set("city", city);
-    url.hash = "featured-vendors";
-    window.history.replaceState({}, "", url);
-    setAnnouncement(`Showing ${vendorLabel} near ${cityLabel}.`);
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document
-      .getElementById("featured-vendors")
-      ?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
+    const category = ({ photographers: "wedding-photography", makeup: "mua", decorators: "decor-florals", catering: "catering", venues: "venues" } as Record<string, string>)[vendorType] ?? vendorType;
+    const cityLabel = cities.find((item) => item.value === city)?.label ?? city;
+    setAnnouncement(`Opening ${vendorTypes.find((item) => item.value === vendorType)?.label} near ${cityLabel}.`);
+    window.location.assign(`/search?category=${encodeURIComponent(category)}&city=${encodeURIComponent(cityLabel)}`);
   }
 
   return (

@@ -17,6 +17,14 @@ repositories {
     mavenCentral()
 }
 
+// This repo can live inside a synced folder (OneDrive/Dropbox), whose file
+// watcher intermittently locks build outputs mid-task and fails the build with
+// "Unable to delete directory". Opt out by pointing the build directory at
+// local disk: -PwedjanBuildDir=... or WEDJAN_BUILD_DIR=... . Unset elsewhere
+// (CI included), so the default ./build layout is unchanged.
+(providers.gradleProperty("wedjanBuildDir").orNull ?: System.getenv("WEDJAN_BUILD_DIR"))
+    ?.let { layout.buildDirectory.set(file(it)) }
+
 // Boot 3.4 manages Testcontainers 1.20.x, whose docker-java predates Docker
 // Engine 29 (min API 1.44) — /info probes fail with HTTP 400. Pin both.
 extra["testcontainers.version"] = "1.21.4"
@@ -44,6 +52,9 @@ dependencies {
     // UUIDv7
     implementation("com.fasterxml.uuid:java-uuid-generator:5.1.0")
 
+    // RFC 5545 parsing, timezone components, recurrence and exclusions.
+    implementation("org.mnode.ical4j:ical4j:4.2.5")
+
     // S3-compatible object storage (Cloudflare R2 in prod, MinIO locally)
     implementation(platform("software.amazon.awssdk:bom:2.29.52"))
     implementation("software.amazon.awssdk:s3")
@@ -59,4 +70,6 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    maxHeapSize = "192m"
+    jvmArgs("-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-XX:ReservedCodeCacheSize=64m")
 }

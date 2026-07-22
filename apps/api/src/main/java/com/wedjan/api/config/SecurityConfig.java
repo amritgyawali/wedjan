@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -48,6 +49,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/api/v1/health", "/actuator/health/**",
                                 "/actuator/info", "/error")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categories", "/api/v1/vendors/*",
+                                "/api/v1/vendors/*/packages", "/api/v1/vendors/*/availability",
+                                "/api/v1/calendar/*.ics", "/api/v1/search/**",
+                                "/api/v1/showcases", "/api/v1/showcases/*", "/api/v1/seo/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())

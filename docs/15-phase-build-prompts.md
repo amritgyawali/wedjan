@@ -6,7 +6,7 @@
 
 # HOW TO USE THIS PACK
 
-1. **Replace `[PLATFORM_NAME]`** everywhere with your final brand name before starting.
+1. **Replace `wedjan`** everywhere with your final brand name before starting.
 2. **One phase = one focused build cycle.** Run phases in order. Each prompt assumes all previous phases are complete.
 3. **Every session:** paste the **MASTER CONTEXT** block first, then the phase prompt.
 4. **Never start the next phase until the current phase's ACCEPTANCE CRITERIA all pass.** Commit and tag `phase-N-complete` after each.
@@ -18,7 +18,7 @@
 # MASTER CONTEXT BLOCK (PASTE AT THE TOP OF EVERY PHASE PROMPT)
 
 ```
-You are the lead engineer building [PLATFORM_NAME], a three-sided event & wedding
+You are the lead engineer building [wedjan], a three-sided event & wedding
 marketplace: CUSTOMERS plan events and book vendors; VENDORS sell priced packages
 and hire crew; FREELANCERS pick up gig shifts. Business-ready quality: production
 code, not prototypes.
@@ -250,7 +250,7 @@ Resumable 7-step wizard with progress bar and per-step autosave:
 - Gallery with lightbox; About; Packages grid (price ALWAYS visible, pricing_model
   suffix e.g. "/guest", deposit + cancellation chips, Instant Book bolt icon);
   Add-ons; Service area map; FAQs; Reviews placeholder section ("New on
-  [PLATFORM_NAME]").
+  [wedjan]").
 - JSON-LD: LocalBusiness + Service + Offer per package. OG image auto-generated
   (vercel/og) with cover + name + starting price.
 - CTA buttons "Check availability" / "Message vendor" → route to waitlist modal
@@ -889,7 +889,7 @@ OBJECTIVE
 Build the guest-facing layer: a template-based event website builder with
 public RSVP tied to the Phase 8 guest list, a card e-invite studio with
 Devanagari + Latin typography, a template-based video invite renderer, and
-guest messaging. Every guest touchpoint carries tasteful [PLATFORM_NAME]
+guest messaging. Every guest touchpoint carries tasteful [wedjan]
 branding → organic growth loop.
 
 1) EVENT SITE BUILDER
@@ -1119,7 +1119,7 @@ subscription on Stripe Billing.
   currency, total_cents, due_at, status [DRAFT|SENT|PAID|OVERDUE|VOID],
   stripe_checkout_id NULLABLE, is_off_platform bool) — payment via Stripe
   Checkout to vendor's connected account (standard rails, NO escrow), pages
-  clearly labeled "Not covered by [PLATFORM_NAME] booking protection".
+  clearly labeled "Not covered by [wedjan] booking protection".
   Purpose: pulls the vendor's whole book of business into the OS.
 
 4) AUTOMATIONS (PRO)

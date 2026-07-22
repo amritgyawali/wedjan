@@ -7,10 +7,10 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 
 | Phase | Status | Started | Done | Tag | Notes |
 |---|---|---|---|---|---|
-| 1 Foundation | 🔶 built | 2026-07-15 | | phase-1-complete | Core complete on `feat/phase-1-foundation`; gate items pending: deploys (no Railway/Vercel accounts yet), mobile device run |
-| 2 Vendor supply | ☐ | | | phase-2-complete | |
-| 3 Discovery/AEO | ☐ | | | phase-3-complete | |
-| 4 Booking engine | ☐ | | | phase-4-complete | |
+| 1 Foundation | ✅ | 2026-07-15 | 2026-07-15 | phase-1-complete | Merged + tagged (owner accepted). Deferred: Railway/Vercel deploys (accounts pending), mobile device run (P13) |
+| 2 Vendor supply | ✅ | 2026-07-15 | 2026-07-15 | phase-2-complete | Built + locally verified on `feat/phase-2-vendor-supply`; tag after merge/owner acceptance |
+| 3 Discovery/AEO | ✅ | 2026-07-15 | 2026-07-15 | phase-3-complete | Built + fully verified on `feat/phase-3-discovery-aeo`; tag after owner acceptance |
+| 4 Booking engine | ✅ | 2026-07-22 | 2026-07-22 | phase-4-complete | Built + verified on `feat/phase-4-booking-engine`; tag after owner acceptance |
 | 5 Payments/Escrow | ☐ | | | phase-5-complete | |
 | 6 Leads/Messaging | ☐ | | | phase-6-complete | |
 | 7 Trust/Merit ★launch | ☐ | | | phase-7-complete | |
@@ -30,7 +30,7 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
   SHA-256 manifest on every PR.
 - **Monorepo** — pnpm workspaces + Turborepo (`apps/web`, `apps/api`, `apps/mobile`,
   `packages/shared`, `packages/ui-tokens`); hoisted node linker (ADR-004).
-- **packages/shared** — `openapi.yaml` (API-first contract for all Phase 1 endpoints) +
+- **packages/shared** — `openapi.yaml` (API-first contract for all Phase 1–2 endpoints) +
   generated `openapi-fetch` typed client used by web and mobile; CI fails on stale codegen.
 - **packages/ui-tokens** — brand tokens derived from the frozen homepage: TS object
   (mobile) + `--wj-*` CSS custom properties (web, ADR-007).
@@ -47,7 +47,7 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
   - Media: presign (MIME/size gates per kind) → PUT to MinIO/R2 → complete (HEAD verify,
     image dimension probe, in-repo BlurHash, idempotent; 403 on foreign asset).
   - Cross-cutting: error envelope {code,message,fieldErrors,traceId}, correlation-id filter,
-    async audit writer, app_config typed accessor, dev seed (admin + 3 demo accounts),
+    async audit writer, app_config typed accessor, dev seed (admin + 3 role accounts + 20 vendors),
     Dockerfile for Railway.
   - Tests: JwtService + BlurHash unit; Testcontainers (Postgres+Redis) integration covering
     signup→verify→login→refresh→reuse-detection→multi-role→sessions→429 rate limit.
@@ -65,20 +65,73 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 - **Local dev** — `docker compose up -d` (Postgres16+pgvector, Redis, Mailpit :8025,
   MinIO :9001 with auto bucket) + `pnpm dev`; `.env.example` documents every key with
   working local defaults.
+- **Phase 2 vendor supply** — Flyway V2 taxonomy + vendor/profile/service-area/package/add-on/
+  media/document/badge/FAQ model; price required at API and database layers; published commercial
+  terms versioned; submit returns precise step errors; admin document approval grants badges and
+  publishes the listing while later sensitive re-review leaves it live.
+- **Vendor web** — resumable seven-step `/vendor/onboarding` flow with strength meter, map/radius
+  service areas, priced package live preview + add-ons, client-compressed/reorderable media,
+  document status, FAQ editor, review checklist, dashboard status, and admin verification queue.
+- **Public vendor profile** — `/v/{slug}` renders verified/public vendors with gallery, badges,
+  visible package/add-on prices, service areas, FAQs, LocalBusiness/Service/Offer JSON-LD, dynamic
+  OG image, local favorites, and booking/messaging intent capture.
+- **Vendor mobile** — native seven-step onboarding with library/camera uploads and a public
+  vendor profile route; Expo ImagePicker added at the SDK-compatible version.
+- **Phase 2 seed/test** — optional dev seed creates 20 verified vendors across 10 categories in
+  Kathmandu + Melbourne; the Testcontainers flow proves incomplete gates, onboard→approve→live,
+  badges, visible prices, price versioning, and live sensitive-field re-review.
+- **Phase 3 search** — weighted PostgreSQL FTS + trigram typo tolerance, indexed earthdistance
+  service-radius matching, complete combinable filters/facets, stable UUIDv7 cursors, server-side
+  empty-result relaxations, and async low-result analytics. The supplied 10k generator measured
+  243.4 ms p95 across 100 warmed local requests (300 ms gate).
+- **Inspiration + customer discovery** — vendor showcase CRUD, media galleries, email tag requests,
+  accepted-credit-only public reads, web/mobile feeds and details, double-tap favorites, named
+  shortlists, and four-package comparison with native + clearly approximate static FX amounts.
+- **AEO/SEO** — active category×city one-hour ISR pages with live price stats and six seeded FAQs;
+  ItemList/FAQPage/BreadcrumbList plus vendor FAQ JSON-LD; daily sitemap index/type maps, robots.txt,
+  and llms.txt. Existing frozen homepage design is unchanged while all relevant controls/CTAs now
+  route into live search, inspiration, auth, and vendor onboarding.
+- **Phase 3 mobile** — native Explore and Inspiration tabs with filters, cursor loading, vendor and
+  showcase details, confirmed team credits, and favorites; shared generated OpenAPI client parity.
+- **Phase 4 availability** — Flyway V4 adds DATE/SLOT vendor modes, weekly rules, exception
+  overrides, and a `get_availability` function deriving per-date AVAILABLE/LIMITED/BOOKED/
+  BLACKED_OUT from confirmed bookings plus live holds. Vendors edit month calendars and bulk
+  blackouts; customers read a public cached availability endpoint.
+- **Phase 4 booking aggregate** — human-readable codes, full price/terms snapshots, the twelve-state
+  machine with explicit legal-transition map (illegal → `BOOKING_INVALID_TRANSITION`), append-only
+  `booking_events` protected by a mutation-blocking trigger, and single mutual-consent reschedule.
+  Double-booking is refused by the database: capacity-slot unique indexes in DATE mode and GiST
+  `tstzrange` exclusion constraints in SLOT mode, mirrored onto 15-minute checkout holds.
+- **Phase 4 rules** — cancellation policy engine returns a `RefundCalculation` (Phase 5 executes it)
+  with FLEXIBLE/MODERATE/STRICT tables, inclusive named boundaries (ADR-018), and always-100%
+  vendor-fault refunds; 24h vendor SLA on requests and 24h customer payment windows; scheduler
+  drives CONFIRMED→IN_PROGRESS→COMPLETED and the 48h dispute window.
+- **Phase 4 iCalendar** — hourly ICS pull writes source-tagged blackout exceptions (folded lines,
+  all-day + timed events, RRULE/RDATE/EXDATE, vendor-timezone conversion), degraded-sync status
+  retains last-good data, and each vendor gets a rotatable secret-token export feed (ADR-021).
+- **Phase 4 surfaces** — search `date` filter now excludes truly unavailable vendors and cards show
+  real next-available dates; web has customer booking widget with live pricing/refund preview,
+  my-bookings list/detail with status stepper, vendor booking inbox with SLA countdowns and
+  calendar screen; mobile has the vendor booking widget, bookings list/detail, and availability.
+  Payment confirmation is an explicitly non-production stub pending Phase 5 (ADR-019).
 
 ## What is stubbed / not started
 
 - Deploys: Railway/Vercel/EAS accounts + secrets not configured (deploy workflow inert).
 - Mobile: not yet run on a physical device/simulator (shell typechecks; Phase 13 completes).
-- shadcn/ui: not installed — platform shell uses handwritten classes in the homepage
-  language; introduce shadcn/ui when Phase 2's form-heavy wizard needs it.
+- shadcn/ui: not installed — ADR-012 keeps the Phase 2 wizard on accessible native controls and
+  the existing token system; reconsider only for a future complex primitive.
 - Prettier + Husky pre-commit hooks: deferred (ESLint + CI gates cover the bar for now).
-- Vendor/freelancer domain, search, bookings, payments, messaging, reviews: Phases 2–7.
+- Bookings, payments, messaging, reviews, and freelancer domain: Phases 4–7/12.
 
 ## Known placeholders awaiting later phases
 
-- P1 dashboard empty states reference upcoming phases by name ("Vendor onboarding opens in
-  the next phase") — each owning phase replaces its card with the real surface.
+- Customer/freelancer dashboard empty states reference their upcoming owning phases; the vendor
+  and admin placeholders were replaced by real Phase 2 surfaces.
+- Public profile availability/message CTAs deliberately capture intent in a local waitlist modal;
+  Phase 4 and Phase 6 replace them with the booking and messaging flows.
+- Search rating sort and next-three-available-dates fields are explicit placeholders: Phase 7 adds
+  merit/rating order and Phase 4 supplies real availability without changing the search contract.
 - Settings "Change password" routes through the password-reset flow (no authenticated
   change-password endpoint yet; add when Phase 14 hardens account management).
-- `feature.*` flags in app_config default to false for Phases 2–5 surfaces.
+- `feature.vendor_onboarding` and `feature.discovery` are enabled; future Phase 4–5 flags remain false.

@@ -1,0 +1,42 @@
+.searchWithDate {
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+}
+
+.availability {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.availability > strong {
+  color: var(--wj-color-success);
+  font-size: 11px;
+}
+
+.availableDates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.availableDates time {
+  border: 1px solid rgba(0, 107, 32, 0.2);
+  border-radius: var(--wj-radius-pill);
+  padding: 4px 7px;
+  background: #edf7ef;
+  color: var(--wj-color-success);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .searchWithDate {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .searchWithDate {
+    grid-template-columns: 1fr;
+  }
+}

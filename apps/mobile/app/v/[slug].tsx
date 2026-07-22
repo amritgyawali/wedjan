@@ -1,0 +1,250 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Stack, useLocalSearchParams } from "expo-router";
+import type { VendorPublic } from "@wedjan/shared";
+import { tokens } from "@wedjan/ui-tokens";
+import { VendorBookingWidget } from "@/components/vendor-booking-widget";
+import { api } from "@/lib/api";
+
+export default function PublicVendorScreen() {
+  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const [vendor, setVendor] = useState<VendorPublic | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  useEffect(() => {
+    if (!slug) return;
+    void api
+      .GET("/api/v1/vendors/{slug}", { params: { path: { slug } } })
+      .then((result) => result.data && setVendor(result.data));
+  }, [slug]);
+
+  if (!vendor) {
+    return (
+      <View style={s.loading}>
+        <Text>Loading vendor…</Text>
+      </View>
+    );
+  }
+
+  const cover = vendor.media.find((media) => media.kind === "COVER")?.url;
+  const logo = vendor.media.find((media) => media.kind === "LOGO")?.url;
+
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: true, title: vendor.businessName }} />
+      <ScrollView style={s.screen} contentContainerStyle={s.content}>
+        {cover ? (
+          <Image source={{ uri: cover }} style={s.cover} />
+        ) : (
+          <View style={[s.cover, s.placeholder]} />
+        )}
+
+        <View style={s.identity}>
+          {logo ? (
+            <Image source={{ uri: logo }} style={s.logo} />
+          ) : (
+            <View style={[s.logo, s.logoFallback]}>
+              <Text style={s.logoLetter}>{vendor.businessName[0]}</Text>
+            </View>
+          )}
+          <Text style={s.title}>{vendor.businessName}</Text>
+          <Text style={s.muted}>
+            {vendor.categories[0]?.name} · {vendor.baseCity}
+          </Text>
+          <View style={s.badges}>
+            {vendor.badges.map((badge) => (
+              <Text style={s.badge} key={badge.badge}>
+                ✓ {badge.badge.replaceAll("_", " ")}
+              </Text>
+            ))}
+          </View>
+        </View>
+
+        <View style={s.actions}>
+          <Pressable style={s.primary} onPress={() => setBookingOpen((open) => !open)}>
+            <Text style={s.primaryText}>{bookingOpen ? "Hide booking" : "Check availability"}</Text>
+          </Pressable>
+          <Pressable style={s.outline}>
+            <Text style={s.pink}>Message vendor</Text>
+          </Pressable>
+        </View>
+
+        {bookingOpen && <VendorBookingWidget vendor={vendor} />}
+
+        <Section title="About">
+          <Text style={s.body}>{vendor.about}</Text>
+        </Section>
+
+        {vendor.media.some((media) => media.kind === "GALLERY") && (
+          <Section title="Selected work">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {vendor.media
+                .filter((media) => media.kind === "GALLERY")
+                .map(
+                  (media) =>
+                    media.url && (
+                      <Image source={{ uri: media.url }} style={s.gallery} key={media.id} />
+                    ),
+                )}
+            </ScrollView>
+          </Section>
+        )}
+
+        <Section title="Packages">
+          {vendor.packages.map((item) => (
+            <View style={s.package} key={item.id}>
+              {item.coverUrl && <Image source={{ uri: item.coverUrl }} style={s.packageImage} />}
+              <View style={s.packageBody}>
+                <Text style={s.packageTitle}>{item.title}</Text>
+                <Text style={s.muted}>{item.descriptionMd}</Text>
+                <Text style={s.price}>
+                  {money(item.priceCents, item.currency)}
+                  {suffix(item.pricingModel)}
+                </Text>
+                <Text style={s.chip}>
+                  {item.depositPct}% deposit · {item.cancellationPolicy.toLowerCase()}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </Section>
+
+        <Section title="Service area">
+          {vendor.serviceAreas.map((area) => (
+            <View style={s.area} key={area.id}>
+              <Text style={s.pin}>⌖</Text>
+              <View>
+                <Text style={s.packageTitle}>
+                  {area.city}, {area.country}
+                </Text>
+                <Text style={s.muted}>Within {area.radiusKm} km</Text>
+              </View>
+            </View>
+          ))}
+        </Section>
+
+        {vendor.faqs.length > 0 && (
+          <Section title="Questions">
+            {vendor.faqs.map((faq) => (
+              <View style={s.faq} key={faq.question}>
+                <Text style={s.packageTitle}>{faq.question}</Text>
+                <Text style={s.body}>{faq.answerMd}</Text>
+              </View>
+            ))}
+          </Section>
+        )}
+
+        <View style={s.new}>
+          <Text style={s.title}>New on wedjan</Text>
+          <Text style={s.muted}>Reviews appear after the first completed booking.</Text>
+        </View>
+      </ScrollView>
+    </>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={s.section}>
+      <Text style={s.sectionTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+function money(cents: number, currency: string) {
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
+
+function suffix(model: string) {
+  if (model === "PER_HOUR") return "/hour";
+  if (model === "PER_GUEST") return "/guest";
+  if (model === "STARTING_AT") return " starting";
+  return "";
+}
+
+const s = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+  screen: { flex: 1, backgroundColor: tokens.colors.background },
+  content: { paddingBottom: 60 },
+  cover: { width: "100%", height: 300 },
+  placeholder: { backgroundColor: tokens.colors.primaryDeep },
+  identity: { padding: 20, alignItems: "center", marginTop: -52 },
+  logo: { width: 82, height: 82, borderRadius: 41, borderWidth: 4, borderColor: "white" },
+  logoFallback: {
+    backgroundColor: tokens.colors.pinkSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoLetter: { fontSize: 30, color: tokens.colors.brandPink, fontWeight: "800" },
+  title: { fontSize: 26, fontWeight: "800", marginTop: 10 },
+  muted: { color: tokens.colors.secondary, fontSize: 12, marginTop: 4 },
+  badges: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 5, marginTop: 10 },
+  badge: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: tokens.colors.success,
+    backgroundColor: "#edf7ef",
+    borderRadius: 99,
+    padding: 6,
+  },
+  actions: { flexDirection: "row", gap: 8, paddingHorizontal: 18 },
+  primary: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 99,
+    backgroundColor: tokens.colors.brandPink,
+  },
+  primaryText: { color: "white", fontWeight: "800" },
+  outline: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 99,
+    borderWidth: 1,
+    borderColor: tokens.colors.brandPink,
+  },
+  pink: { color: tokens.colors.brandPink, fontWeight: "800" },
+  section: { padding: 20, borderBottomWidth: 1, borderBottomColor: tokens.colors.surfaceVariant },
+  sectionTitle: { fontSize: 24, fontWeight: "800", marginBottom: 14 },
+  body: { color: tokens.colors.secondary, fontSize: 14, lineHeight: 23 },
+  gallery: { width: 210, height: 210, borderRadius: 14, marginRight: 9 },
+  package: {
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: tokens.colors.surfaceVariant,
+    borderRadius: 16,
+    backgroundColor: "white",
+    marginBottom: 12,
+  },
+  packageImage: { width: "100%", height: 160 },
+  packageBody: { padding: 16 },
+  packageTitle: { fontSize: 15, fontWeight: "800" },
+  price: { color: tokens.colors.brandPink, fontSize: 20, fontWeight: "800", marginTop: 12 },
+  chip: {
+    alignSelf: "flex-start",
+    fontSize: 9,
+    color: tokens.colors.secondary,
+    backgroundColor: tokens.colors.surfaceGray,
+    borderRadius: 99,
+    padding: 6,
+    marginTop: 8,
+  },
+  area: { flexDirection: "row", gap: 12, padding: 13, borderRadius: 12, backgroundColor: "white" },
+  pin: { color: tokens.colors.brandPink, fontSize: 24 },
+  faq: { marginBottom: 18 },
+  new: {
+    margin: 20,
+    padding: 24,
+    borderRadius: 16,
+    backgroundColor: tokens.colors.pinkSoft,
+    alignItems: "center",
+  },
+});

@@ -121,3 +121,149 @@ Format per entry:
   the public-domain BlurHash algorithm (`media/BlurHash.java`) instead of a third-party jar.
 - Context: No well-maintained Maven artifact; the algorithm is tiny and stable.
 - Consequences: We own the code (unit-tested); encode only ≤64px thumbnails for cost.
+
+## ADR-010 — Public visibility is independent from verification workflow status
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: `vendor_profiles.is_public` records whether a listing may be served publicly;
+  review workflow remains in `status`. First verification sets both `VERIFIED` and
+  `is_public=true`; later sensitive edits set `UNDER_REVIEW` without clearing `is_public`.
+- Context: A single status enum cannot simultaneously say "this edit needs review" and "the
+  previously approved listing remains live." Treating `UNDER_REVIEW` as private would violate
+  the Phase 2 no-unlisting edge case.
+- Consequences: Public reads require `is_public=true` and reject suspended vendors. Admin
+  suspension remains able to remove a listing immediately; later moderation can version the
+  exact sensitive fields under review.
+
+## ADR-011 — Published package edits snapshot commercial terms by version
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: Before changing any published package, copy its price, currency, pricing model,
+  deposit, cancellation policy, and booking mode into `package_price_versions`, keyed by
+  `(package_id, version)`, then increment the live row version.
+- Context: Editing a listing must not rewrite the commercial terms attached to an existing
+  booking. Phase 4 will create booking snapshots, but Phase 2 already needs a durable source
+  version to snapshot from.
+- Consequences: Phase 4 bookings reference a package version and copy the values they display;
+  the current package row remains efficient for discovery while prior terms are immutable.
+
+## ADR-012 — Phase 2 forms extend the existing token-based CSS system
+- Date: 2026-07-15
+- Phase: 2
+- Status: Accepted
+- Decision: The onboarding wizard uses accessible native controls and focused platform
+  components styled with the existing `--wj-*` tokens; shadcn/ui remains uninstalled.
+- Context: ADR-007 established a single Tailwind root to protect the frozen homepage. The Phase
+  2 controls required no behavior that justified adding a parallel component/theme layer.
+- Consequences: Web and native continue to share the token source rather than component code;
+  shadcn can still be introduced for a future complex primitive if it preserves ADR-001/007.
+
+## ADR-013 — Point-radius discovery uses earthdistance, not PostGIS
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Enable PostgreSQL `cube` + `earthdistance`, with a GiST expression index on
+  service-area coordinates, for customer-point-to-service-radius matching.
+- Context: Phase 3 needs indexed point/radius tests but no polygons, routes, or topology.
+  PostGIS would add operational weight without improving this phase's query model.
+- Consequences: Search verifies both the requested search radius and the vendor's promised
+  service radius. Introduce PostGIS later only if a future phase needs polygonal service zones.
+
+## ADR-014 — Search prices stay native; comparison FX is approximate and dated
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: City/corridor search filters package minor units in the package's native currency.
+  Cross-currency compare shows native prices first and an explicitly approximate conversion
+  from the latest row in the static daily `fx_rates` table.
+- Context: The search contract has no requested-currency parameter and checkout does not exist
+  until Phase 5. Silently normalizing filter numbers would imply precision that is not present.
+- Consequences: Landing pages use the city's real package currency. Checkout will always charge
+  native terms; a scheduled FX importer can replace seeded rates without changing the API.
+
+## ADR-015 — Discovery pagination anchors on the last UUIDv7
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Search cursors encode the final vendor UUIDv7 from the prior sorted page; feed
+  cursors remain offsets only for the append-mostly showcase feed.
+- Context: Plain offsets cause duplicate/missing vendor cards when new listings are inserted
+  ahead of a customer between requests. wedjan already standardizes on time-ordered UUIDv7 ids.
+- Consequences: Vendor pagination is stable across insertions. A price or relevance change can
+  still re-rank an item, which is acceptable for live marketplace search.
+
+## ADR-016 — Frozen homepage Phase 3 work is behavior-only
+- Date: 2026-07-15
+- Phase: 3
+- Status: Accepted
+- Decision: Wire the existing hero, navigation, category, gallery, story, login, and vendor
+  links to live Phase 3 routes without changing their visible design or CSS.
+- Context: ADR-001 freezes the approved homepage while the Phase 3 playbook explicitly requires
+  its controls and CTAs to go live. The freeze manifest is re-baselined only for these links.
+- Consequences: The homepage looks identical; its controls now enter real search, inspiration,
+  auth, and onboarding flows. Future visual edits still fail the manifest guard.
+
+## ADR-017 — DATE availability uses numbered capacity slots
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Allocate `capacity_slot` from `1..jobs_per_day` while holding a vendor/date
+  advisory lock, and partially unique `(vendor_id,event_date,capacity_slot)` for availability-
+  consuming DATE statuses. SLOT bookings use a GiST exclusion constraint over canonical UTC
+  ranges.
+- Context: The prompt requires both configurable `jobs_per_day` and a unique vendor/date guard;
+  a plain unique pair would silently force every vendor's capacity to one.
+- Consequences: PostgreSQL remains the final double-booking guard while supporting limited
+  availability. Redis serializes checkout attempts, and a durable hold row survives cache loss.
+
+## ADR-018 — Cancellation shorthand resolves at the named full and partial boundaries
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Use inclusive, gap-free refund tiers: FLEXIBLE is 100% at ≥30 days, 50% at
+  14–29, then 0%; MODERATE is 100% at ≥60, 50% at 30–59, then 0%; STRICT is 100% at
+  ≥90, 25% at 45–89, then 0%. Vendor-fault cancellation is always 100%.
+- Context: The prompt's additional lower zero-day examples (`<7`, `<14`, `<30`) leave the
+  intervening bands undefined. Property and boundary tests need one deterministic table, and
+  Phase 5 must execute exactly what Phase 4 previews.
+- Consequences: The pure cent-safe policy engine owns both preview and final calculation; a
+  finalized `refund_calculations` row becomes Phase 5's immutable execution input.
+
+## ADR-019 — Phase 4 payment confirmation is an explicitly non-production handoff
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Request acceptance records `VENDOR_ACCEPTED` and immediately enters
+  `PENDING_PAYMENT` with a 24-hour hold. The Phase 4 confirmation endpoint is enabled only by
+  `PAYMENT_STUB_ENABLED`; production sets it false until Phase 5 replaces it with verified
+  Stripe state.
+- Context: Phase 4 must prove the complete state cycle, but Product Law #3 forbids a permanent
+  client-callable payment bypass.
+- Consequences: The state/event contract is stable for web and mobile now, while deployment
+  cannot mark an unpaid booking confirmed once the stub flag is disabled.
+
+## ADR-020 — Booking prices are server-derived from published units
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: FLAT and STARTING_AT snapshot the published amount; PER_GUEST multiplies by the
+  validated guest count; PER_HOUR prorates by configured minutes and rounds up to the next cent.
+  Add-ons follow their own pricing model. Create-time travel uses the lowest eligible V2 service-
+  area fee, and a request vendor may adjust only travel before acceptance.
+- Context: The Phase 2 model has no STARTING_AT configuration choices or distance bands, so the
+  client cannot authoritatively resolve a higher quote or distance curve.
+- Consequences: Every displayed total and deposit is integer minor-unit server output. A later
+  distance-band model can extend service areas without changing booking snapshots.
+
+## ADR-021 — iCalendar sync ships with the booking engine
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Implement hourly conditional iCalendar pull, last-good blackout retention on
+  degradation, manual retry/disconnect, and opaque-token confirmed-booking export in Phase 4.
+- Context: `02-features.md` originally placed calendar sync in the later Vendor OS, while the
+  canonical 15-phase Phase 4 prompt explicitly makes import/export an acceptance gate.
+- Consequences: Phase 11 can add provider-specific OAuth and team calendar UX on top of this
+  reusable iCalendar baseline rather than introducing the first external-calendar model then.

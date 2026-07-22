@@ -3,7 +3,8 @@ info:
   title: wedjan API
   description: |
     wedjan — three-sided event & wedding marketplace API.
-    Phase 1 surface: identity, auth, profile, sessions, media pipeline, health.
+    Phase 1–4 surface: identity, vendor supply, discovery, availability, calendar sync
+    and the booking engine.
     Conventions: REST under /api/v1, cursor pagination, standard error envelope,
     correlation IDs, money as integer minor units, UTC timestamps, UUIDv7 ids.
   version: 0.1.0
@@ -14,6 +15,14 @@ tags:
   - name: auth
   - name: me
   - name: media
+  - name: catalog
+  - name: vendor
+  - name: admin
+  - name: discovery
+  - name: showcase
+  - name: seo
+  - name: availability
+  - name: booking
   - name: system
 
 paths:
@@ -293,6 +302,919 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
 
+  /api/v1/categories:
+    get:
+      tags: [catalog]
+      operationId: listCategories
+      summary: Full 2-level category taxonomy (public)
+      security: []
+      responses:
+        "200":
+          description: Active categories, parents before children.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoryListResponse" }
+
+  /api/v1/vendors/me:
+    get:
+      tags: [vendor]
+      operationId: getMyVendorProfile
+      summary: Own vendor profile with all onboarding data + gates + strength
+      responses:
+        "200":
+          description: The vendor workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    patch:
+      tags: [vendor]
+      operationId: updateMyVendorProfile
+      summary: Step-based partial save of vendor basics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorProfileUpdateRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/vendors/me/categories:
+    put:
+      tags: [vendor]
+      operationId: setMyVendorCategories
+      summary: "Replace category selection (1 primary + up to 3 secondary)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorCategoriesRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/service-areas:
+    post:
+      tags: [vendor]
+      operationId: addServiceArea
+      summary: Add a service area
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceAreaRequest" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceArea" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/service-areas/{areaId}:
+    patch:
+      tags: [vendor]
+      operationId: updateServiceArea
+      summary: Update a service area
+      parameters:
+        - { name: areaId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceAreaRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceArea" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deleteServiceArea
+      summary: Remove a service area
+      parameters:
+        - { name: areaId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Deleted. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages:
+    post:
+      tags: [vendor]
+      operationId: createPackage
+      summary: "Create a package (draft) — price is mandatory, always (Law #1)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackageRequest" }
+      responses:
+        "201":
+          description: Created draft package.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/packages/{packageId}:
+    patch:
+      tags: [vendor]
+      operationId: updatePackage
+      summary: Update a package
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackageRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deletePackage
+      summary: Archive a package
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Archived. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages/{packageId}/publish:
+    post:
+      tags: [vendor]
+      operationId: publishPackage
+      summary: "Publish (gates: price>0, ≥3 included items, cover photo)"
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Published.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/packages/{packageId}/unpublish:
+    post:
+      tags: [vendor]
+      operationId: unpublishPackage
+      summary: Unpublish back to draft
+      parameters:
+        - { name: packageId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Draft again.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Package" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/add-ons:
+    post:
+      tags: [vendor]
+      operationId: createAddOn
+      summary: Create an add-on (package-scoped or vendor-wide)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddOnRequest" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AddOn" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/add-ons/{addOnId}:
+    patch:
+      tags: [vendor]
+      operationId: updateAddOn
+      summary: Update an add-on
+      parameters:
+        - { name: addOnId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddOnRequest" }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AddOn" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [vendor]
+      operationId: deleteAddOn
+      summary: Delete an add-on
+      parameters:
+        - { name: addOnId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Deleted. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/media:
+    put:
+      tags: [vendor]
+      operationId: setVendorMedia
+      summary: Replace the vendor media set (gallery, cover, logo) with sort order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorMediaRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/faqs:
+    put:
+      tags: [vendor]
+      operationId: setVendorFaqs
+      summary: Replace FAQ list (max 12)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VendorFaqsRequest" }
+      responses:
+        "200":
+          description: Updated workspace view.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/documents:
+    post:
+      tags: [vendor]
+      operationId: uploadVerificationDocument
+      summary: Attach an uploaded media asset as a verification document
+      description: Re-uploading the same type supersedes the previous pending/rejected document.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationDocumentRequest" }
+      responses:
+        "201":
+          description: Document queued for review.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/vendors/me/submit:
+    post:
+      tags: [vendor]
+      operationId: submitVendorProfile
+      summary: Submit for verification — validates every completeness gate
+      responses:
+        "200":
+          description: Submitted for review.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorMeResponse" }
+        "422":
+          description: One or more gates failed — fieldErrors name each step.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/v1/vendors/{slug}:
+    get:
+      tags: [vendor]
+      operationId: getPublicVendorProfile
+      summary: Public vendor profile (VERIFIED vendors only)
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The public profile with published packages.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VendorPublicResponse" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/{slug}/packages:
+    get:
+      tags: [vendor]
+      operationId: getPublicVendorPackages
+      summary: Published, transparently-priced packages for a verified vendor
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Published packages with a price on every item.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Package" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/admin/verifications:
+    get:
+      tags: [admin]
+      operationId: listVerifications
+      summary: Verification document queue (ADMIN)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, maximum: 50, default: 20 }
+      responses:
+        "200":
+          description: Queue page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationQueueResponse" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/admin/verifications/{documentId}/approve:
+    post:
+      tags: [admin]
+      operationId: approveVerification
+      summary: Approve a document — grants badges; flips SUBMITTED vendors to VERIFIED
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationReviewRequest" }
+      responses:
+        "200":
+          description: Approved.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/admin/verifications/{documentId}/reject:
+    post:
+      tags: [admin]
+      operationId: rejectVerification
+      summary: Reject a document with a note the vendor sees
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationReviewRequest" }
+      responses:
+        "200":
+          description: Rejected.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerificationDocument" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/search/vendors:
+    get:
+      tags: [discovery]
+      operationId: searchVendors
+      security: []
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: city, in: query, schema: { type: string } }
+        - { name: lat, in: query, schema: { type: number, format: double } }
+        - { name: lng, in: query, schema: { type: number, format: double } }
+        - { name: radius, in: query, schema: { type: number, format: double } }
+        - { name: price_min, in: query, schema: { type: integer, format: int64 } }
+        - { name: price_max, in: query, schema: { type: integer, format: int64 } }
+        - { name: guests, in: query, schema: { type: integer } }
+        - { name: badges, in: query, schema: { type: array, items: { type: string } } }
+        - { name: booking_mode, in: query, schema: { $ref: "#/components/schemas/BookingMode" } }
+        - { name: date, in: query, schema: { type: string, format: date }, description: Return only vendors that are truly bookable on this venue-local date. }
+        - { name: sort, in: query, schema: { $ref: "#/components/schemas/SearchSort" } }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Filtered vendor cards with facets, content: { application/json: { schema: { $ref: "#/components/schemas/VendorSearchResponse" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/showcases:
+    get:
+      tags: [showcase]
+      operationId: getShowcaseFeed
+      security: []
+      parameters:
+        - { name: eventType, in: query, schema: { $ref: "#/components/schemas/EventType" } }
+        - { name: city, in: query, schema: { type: string } }
+        - { name: styleTags, in: query, schema: { type: array, items: { type: string } } }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Published inspiration feed, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+    post:
+      tags: [showcase]
+      operationId: createShowcase
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseRequest" } } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+
+  /api/v1/showcases/{idOrSlug}:
+    get:
+      tags: [showcase]
+      operationId: getShowcase
+      security: []
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Published showcase, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [showcase]
+      operationId: updateShowcase
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseRequest" } } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } }
+    delete:
+      tags: [showcase]
+      operationId: deleteShowcase
+      parameters: [{ name: idOrSlug, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "204": { description: Deleted } }
+
+  /api/v1/showcases/me/owned:
+    get:
+      tags: [showcase]
+      operationId: getMyShowcases
+      responses:
+        "200": { description: Vendor showcases, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+  /api/v1/showcases/me/pending-tags:
+    get:
+      tags: [showcase]
+      operationId: getPendingShowcaseTags
+      responses:
+        "200": { description: Tags awaiting response, content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseFeedResponse" } } } }
+  /api/v1/showcases/tags/{tagId}/accept:
+    post:
+      tags: [showcase]
+      operationId: acceptShowcaseTag
+      parameters: [{ name: tagId, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: Accepted, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } } }
+  /api/v1/showcases/tags/{tagId}/decline:
+    post:
+      tags: [showcase]
+      operationId: declineShowcaseTag
+      parameters: [{ name: tagId, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: Declined, content: { application/json: { schema: { $ref: "#/components/schemas/Showcase" } } } } }
+
+  /api/v1/discovery/favorites:
+    get:
+      tags: [discovery]
+      operationId: getFavorites
+      responses: { "200": { description: Favorites, content: { application/json: { schema: { $ref: "#/components/schemas/FavoriteListResponse" } } } } }
+    post:
+      tags: [discovery]
+      operationId: addFavorite
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/FavoriteRequest" } } } }
+      responses: { "201": { description: Favorited, content: { application/json: { schema: { $ref: "#/components/schemas/Favorite" } } } } }
+  /api/v1/discovery/favorites/{type}/{entityId}:
+    delete:
+      tags: [discovery]
+      operationId: removeFavorite
+      parameters:
+        - { name: type, in: path, required: true, schema: { $ref: "#/components/schemas/EntityType" } }
+        - { name: entityId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "204": { description: Removed } }
+
+  /api/v1/discovery/shortlists:
+    get:
+      tags: [discovery]
+      operationId: getShortlists
+      responses: { "200": { description: Shortlists, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistListResponse" } } } } }
+    post:
+      tags: [discovery]
+      operationId: createShortlist
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistRequest" } } } }
+      responses: { "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Shortlist" } } } } }
+  /api/v1/discovery/shortlists/{shortlistId}/items:
+    post:
+      tags: [discovery]
+      operationId: addShortlistItem
+      parameters: [{ name: shortlistId, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ShortlistItemRequest" } } } }
+      responses: { "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Shortlist" } } } } }
+  /api/v1/discovery/shortlists/{shortlistId}/items/{itemId}:
+    delete:
+      tags: [discovery]
+      operationId: deleteShortlistItem
+      parameters:
+        - { name: shortlistId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: itemId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "204": { description: Removed } }
+  /api/v1/discovery/compare:
+    get:
+      tags: [discovery]
+      operationId: comparePackages
+      parameters:
+        - { name: packageIds, in: query, required: true, schema: { type: array, maxItems: 4, items: { type: string, format: uuid } } }
+        - { name: currency, in: query, schema: { $ref: "#/components/schemas/Currency" } }
+      responses: { "200": { description: Package comparison, content: { application/json: { schema: { $ref: "#/components/schemas/CompareResponse" } } } } }
+
+  /api/v1/seo/routes:
+    get:
+      tags: [seo]
+      operationId: getSeoRoutes
+      security: []
+      responses: { "200": { description: Active landing routes, content: { application/json: { schema: { $ref: "#/components/schemas/LandingRouteList" } } } } }
+  /api/v1/seo/{country}/{city}/{category}:
+    get:
+      tags: [seo]
+      operationId: getSeoLanding
+      security: []
+      parameters:
+        - { name: country, in: path, required: true, schema: { type: string } }
+        - { name: city, in: path, required: true, schema: { type: string } }
+        - { name: category, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Live category-city content, content: { application/json: { schema: { $ref: "#/components/schemas/LandingPage" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/{slug}/availability:
+    get:
+      tags: [availability]
+      operationId: getVendorAvailability
+      summary: Public per-day availability for a verified vendor
+      description: Event dates and slot times are venue-local. The response is publicly cached for 60 seconds.
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        "200": { description: Availability range, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityResponse" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/availability:
+    get:
+      tags: [availability]
+      operationId: getMyAvailabilitySettings
+      summary: Weekly rules, manual/ICS exceptions, mode and timezone
+      responses:
+        "200": { description: Vendor availability settings, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilitySettings" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      tags: [availability]
+      operationId: updateMyAvailabilitySettings
+      summary: Replace availability mode, timezone and all seven weekly rules
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilitySettingsRequest" } } }
+      responses:
+        "200": { description: Updated settings, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilitySettings" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/vendors/me/calendar:
+    get:
+      tags: [availability]
+      operationId: getMyAvailabilityCalendar
+      summary: Vendor calendar range with capacity, occupancy and slot statuses
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        "200": { description: Calendar range, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityResponse" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/vendors/me/availability/exceptions:
+    post:
+      tags: [availability]
+      operationId: createAvailabilityException
+      summary: Add a manual blackout, extra-open date or custom slots
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityExceptionRequest" } } }
+      responses:
+        "201": { description: Created exception, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityException" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/vendors/me/availability/exceptions/{id}:
+    patch:
+      tags: [availability]
+      operationId: updateAvailabilityException
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityExceptionRequest" } } }
+      responses:
+        "200": { description: Updated exception, content: { application/json: { schema: { $ref: "#/components/schemas/AvailabilityException" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      tags: [availability]
+      operationId: deleteAvailabilityException
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/vendors/me/calendars:
+    get:
+      tags: [availability]
+      operationId: listExternalCalendars
+      responses:
+        "200":
+          description: Connected ICS calendars and their latest sync state
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ExternalCalendar" } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [availability]
+      operationId: connectExternalCalendar
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ExternalCalendarRequest" } } }
+      responses:
+        "201": { description: Connected and initial sync attempted, content: { application/json: { schema: { $ref: "#/components/schemas/ExternalCalendar" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/vendors/me/calendars/{id}/sync:
+    post:
+      tags: [availability]
+      operationId: syncExternalCalendar
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Sync attempted, content: { application/json: { schema: { $ref: "#/components/schemas/ExternalCalendar" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/calendars/{id}:
+    delete:
+      tags: [availability]
+      operationId: disconnectExternalCalendar
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Disconnected and its imported exceptions removed }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/vendors/me/calendar-export:
+    get:
+      tags: [availability]
+      operationId: getCalendarExport
+      responses:
+        "200": { description: Current secret ICS export URL, content: { application/json: { schema: { $ref: "#/components/schemas/CalendarExport" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/vendors/me/calendar-export/rotate:
+    post:
+      tags: [availability]
+      operationId: rotateCalendarExport
+      responses:
+        "200": { description: Rotated secret ICS export URL, content: { application/json: { schema: { $ref: "#/components/schemas/CalendarExport" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/calendar/{token}.ics:
+    get:
+      tags: [availability]
+      operationId: getCalendarIcsFeed
+      summary: Secret-token iCalendar feed of confirmed bookings
+      security: []
+      parameters: [{ name: token, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200":
+          description: RFC 5545 calendar feed
+          content: { text/calendar: { schema: { type: string } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/bookings/quote:
+    post:
+      tags: [booking]
+      operationId: quoteBooking
+      summary: Price and availability preview without creating a booking
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/BookingConfigurationRequest" } } }
+      responses:
+        "200": { description: Short-lived server-calculated quote, content: { application/json: { schema: { $ref: "#/components/schemas/BookingQuote" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings:
+    get:
+      tags: [booking]
+      operationId: listMyBookings
+      parameters:
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/BookingStatus" } }
+        - { name: cursor, in: query, schema: { type: string }, description: Opaque continuation cursor from the prior page. }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+      responses:
+        "200": { description: Customer bookings, content: { application/json: { schema: { $ref: "#/components/schemas/BookingList" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [booking]
+      operationId: createBooking
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/BookingConfigurationRequest" } } }
+      responses:
+        "201": { description: DRAFT instant booking or REQUESTED request-to-book, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/vendors/me/bookings:
+    get:
+      tags: [booking]
+      operationId: listVendorBookings
+      parameters:
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/BookingStatus" } }
+        - { name: cursor, in: query, schema: { type: string }, description: Opaque continuation cursor from the prior page. }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+      responses:
+        "200": { description: Vendor booking inbox ordered by urgency, content: { application/json: { schema: { $ref: "#/components/schemas/BookingList" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/bookings/{id}:
+    get:
+      tags: [booking]
+      operationId: getBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Participant-specific booking detail and allowed actions, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/bookings/{id}/checkout:
+    post:
+      tags: [booking]
+      operationId: checkoutBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingVersionRequest" } } } }
+      responses:
+        "200": { description: Booking handed to the payment window, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/confirm:
+    post:
+      tags: [booking]
+      operationId: confirmBooking
+      summary: Non-production payment stub; Phase 5 replaces this implementation with Stripe confirmation
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingVersionRequest" } } } }
+      responses:
+        "200": { description: Confirmed booking, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/accept:
+    post:
+      tags: [booking]
+      operationId: acceptBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingAcceptRequest" } } } }
+      responses:
+        "200": { description: Accepted and soft-held for customer payment, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/decline:
+    post:
+      tags: [booking]
+      operationId: declineBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingDeclineRequest" } } } }
+      responses:
+        "200": { description: Declined booking, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/refund-preview:
+    get:
+      tags: [booking]
+      operationId: previewBookingRefund
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Actor-aware cancellation calculation, content: { application/json: { schema: { $ref: "#/components/schemas/RefundCalculation" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/bookings/{id}/cancel:
+    post:
+      tags: [booking]
+      operationId: cancelBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingCancelRequest" } } } }
+      responses:
+        "200": { description: Cancelled booking, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/complete:
+    post:
+      tags: [booking]
+      operationId: completeBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingVersionRequest" } } } }
+      responses:
+        "200": { description: Completed booking with dispute deadline, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/dispute:
+    post:
+      tags: [booking]
+      operationId: disputeBooking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingDisputeRequest" } } } }
+      responses:
+        "200": { description: Dispute flagged, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/reschedule-propose:
+    post:
+      tags: [booking]
+      operationId: proposeBookingReschedule
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RescheduleProposalRequest" } } } }
+      responses:
+        "200": { description: Proposal recorded without reserving the new date, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/v1/bookings/{id}/reschedule-confirm:
+    post:
+      tags: [booking]
+      operationId: decideBookingReschedule
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RescheduleDecisionRequest" } } } }
+      responses:
+        "200": { description: Proposal accepted/rejected; mutual acceptance rechecks availability, content: { application/json: { schema: { $ref: "#/components/schemas/Booking" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
   /api/v1/health:
     get:
       tags: [system]
@@ -324,6 +1246,17 @@ components:
       schema:
         type: string
         enum: [web, mobile]
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        Caller-generated key for booking creation. Reusing the same key with the
+        same request returns the original booking; a different request returns 409.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
 
   responses:
     ValidationError:
@@ -348,6 +1281,11 @@ components:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
     RateLimited:
       description: Too many requests.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Conflict:
+      description: The requested operation conflicts with current availability or aggregate state.
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
@@ -596,6 +1534,1067 @@ components:
       properties:
         status: { type: string, enum: [ok] }
         version: { type: string }
+
+    # ------------------------------------------------------------------
+    # Phase 2 — vendor supply
+    # ------------------------------------------------------------------
+
+    Category:
+      type: object
+      required: [id, slug, name, sort, isActive]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        parentId: { type: string, format: uuid }
+        icon: { type: string, description: Material Symbols icon name }
+        sort: { type: integer }
+        isActive: { type: boolean }
+
+    CategoryListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+
+    VendorStatus:
+      type: string
+      enum: [DRAFT, SUBMITTED, UNDER_REVIEW, VERIFIED, REJECTED, SUSPENDED]
+
+    PricingModel:
+      type: string
+      enum: [FLAT, PER_HOUR, PER_GUEST, STARTING_AT]
+
+    BookingMode:
+      type: string
+      enum: [INSTANT, REQUEST]
+
+    CancellationPolicy:
+      type: string
+      enum: [FLEXIBLE, MODERATE, STRICT]
+
+    PackageStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, ARCHIVED]
+
+    VendorMediaKind:
+      type: string
+      enum: [GALLERY, COVER, LOGO, SHOWREEL]
+
+    VerificationDocumentType:
+      type: string
+      enum: [BUSINESS_REGISTRATION, GOVERNMENT_ID, INSURANCE, PORTFOLIO_PROOF]
+
+    VerificationDocumentStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+
+    BadgeType:
+      type: string
+      enum: [IDENTITY_VERIFIED, BUSINESS_VERIFIED, INSURED, TOP_RATED, RISING_STAR]
+
+    VendorProfile:
+      type: object
+      required: [accountId, status, onboardingStep, currency, availabilityMode, timezone]
+      properties:
+        accountId: { type: string, format: uuid }
+        businessName: { type: string }
+        slug: { type: string }
+        tagline: { type: string }
+        about: { type: string }
+        foundedYear: { type: integer }
+        teamSize: { type: integer }
+        languages:
+          type: array
+          items: { type: string }
+        baseCity: { type: string }
+        baseCountry: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+        website: { type: string }
+        instagram: { type: string }
+        status: { $ref: "#/components/schemas/VendorStatus" }
+        rejectionReason: { type: string }
+        onboardingStep: { type: integer, minimum: 1, maximum: 7 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        availabilityMode: { $ref: "#/components/schemas/AvailabilityMode" }
+        timezone: { type: string, maxLength: 64, description: IANA timezone for venue-local calendar dates and slots. }
+
+    VendorProfileUpdateRequest:
+      type: object
+      properties:
+        businessName: { type: string, maxLength: 160 }
+        tagline: { type: string, maxLength: 160 }
+        about: { type: string, maxLength: 5000 }
+        foundedYear: { type: integer, minimum: 1900, maximum: 2100 }
+        teamSize: { type: integer, minimum: 1, maximum: 10000 }
+        languages:
+          type: array
+          maxItems: 10
+          items: { type: string, maxLength: 40 }
+        baseCity: { type: string, maxLength: 120 }
+        baseCountry: { type: string, minLength: 2, maxLength: 2 }
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+        website: { type: string, maxLength: 300 }
+        instagram: { type: string, maxLength: 100 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        onboardingStep: { type: integer, minimum: 1, maximum: 7 }
+
+    VendorCategorySelection:
+      type: object
+      required: [categoryId, isPrimary]
+      properties:
+        categoryId: { type: string, format: uuid }
+        isPrimary: { type: boolean }
+
+    VendorCategoriesRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items: { $ref: "#/components/schemas/VendorCategorySelection" }
+
+    ServiceAreaRequest:
+      type: object
+      required: [mode, city, country]
+      properties:
+        mode: { type: string, enum: [CITY_RADIUS, REGION] }
+        city: { type: string, maxLength: 120 }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        lat: { type: number }
+        lng: { type: number }
+        radiusKm: { type: integer, minimum: 1, maximum: 1000 }
+        travelFeeCents: { type: integer, format: int64, minimum: 0 }
+        travelFeeNote: { type: string, maxLength: 300 }
+
+    ServiceArea:
+      allOf:
+        - $ref: "#/components/schemas/ServiceAreaRequest"
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid }
+
+    PackageRequest:
+      type: object
+      required: [title, categoryId, priceCents, pricingModel]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        categoryId: { type: string, format: uuid }
+        descriptionMd: { type: string, maxLength: 10000 }
+        priceCents:
+          type: integer
+          format: int64
+          minimum: 1
+          description: "Real price in minor units — zero/absent is impossible by design (Law #1)."
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        minGuests: { type: integer, minimum: 1 }
+        maxGuests: { type: integer, minimum: 1 }
+        durationMinutes: { type: integer, minimum: 15 }
+        whatsIncludedMd: { type: string, maxLength: 10000 }
+        whatsExcludedMd: { type: string, maxLength: 10000 }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer, minimum: 10, maximum: 100 }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        allowSameDay: { type: boolean, default: false }
+        coverMediaId: { type: string, format: uuid }
+        sort: { type: integer }
+
+    Package:
+      type: object
+      required: [id, vendorId, categoryId, title, slug, priceCents, currency, pricingModel, bookingMode, depositPct, cancellationPolicy, status, allowSameDay, version]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        categoryId: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string }
+        descriptionMd: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        minGuests: { type: integer }
+        maxGuests: { type: integer }
+        durationMinutes: { type: integer }
+        whatsIncludedMd: { type: string }
+        whatsExcludedMd: { type: string }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        status: { $ref: "#/components/schemas/PackageStatus" }
+        allowSameDay: { type: boolean }
+        version: { type: integer, format: int64, minimum: 0 }
+        coverMediaId: { type: string, format: uuid }
+        coverUrl: { type: string }
+        sort: { type: integer }
+
+    AddOnRequest:
+      type: object
+      required: [title, priceCents, pricingModel]
+      properties:
+        packageId:
+          type: string
+          format: uuid
+          description: Omit for a vendor-wide add-on.
+        title: { type: string, minLength: 2, maxLength: 160 }
+        priceCents: { type: integer, format: int64, minimum: 1 }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        maxQty: { type: integer, minimum: 1, maximum: 999 }
+        description: { type: string, maxLength: 1000 }
+
+    AddOn:
+      allOf:
+        - $ref: "#/components/schemas/AddOnRequest"
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid }
+
+    VendorMediaItemRequest:
+      type: object
+      required: [mediaId, kind]
+      properties:
+        mediaId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/VendorMediaKind" }
+        caption: { type: string, maxLength: 300 }
+        sort: { type: integer }
+
+    VendorMediaRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 60
+          items: { $ref: "#/components/schemas/VendorMediaItemRequest" }
+
+    VendorMediaItem:
+      type: object
+      required: [id, mediaId, kind, sort]
+      properties:
+        id: { type: string, format: uuid }
+        mediaId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/VendorMediaKind" }
+        caption: { type: string }
+        sort: { type: integer }
+        url: { type: string }
+        width: { type: integer }
+        height: { type: integer }
+        blurhash: { type: string }
+
+    VendorFaqItem:
+      type: object
+      required: [question, answerMd]
+      properties:
+        question: { type: string, minLength: 5, maxLength: 300 }
+        answerMd: { type: string, minLength: 5, maxLength: 3000 }
+
+    VendorFaqsRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 12
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+
+    VerificationDocumentRequest:
+      type: object
+      required: [type, mediaId]
+      properties:
+        type: { $ref: "#/components/schemas/VerificationDocumentType" }
+        mediaId: { type: string, format: uuid }
+
+    VerificationDocument:
+      type: object
+      required: [id, type, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: "#/components/schemas/VerificationDocumentType" }
+        status: { $ref: "#/components/schemas/VerificationDocumentStatus" }
+        reviewerNote: { type: string }
+        reviewedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    VendorBadge:
+      type: object
+      required: [badge, grantedAt]
+      properties:
+        badge: { $ref: "#/components/schemas/BadgeType" }
+        grantedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+
+    SubmitGate:
+      type: object
+      required: [key, step, passed, message]
+      properties:
+        key: { type: string, description: Stable gate id, e.g. gallery_min_5 }
+        step: { type: integer, minimum: 1, maximum: 7 }
+        passed: { type: boolean }
+        message: { type: string }
+
+    VendorMeResponse:
+      type: object
+      required: [profile, categories, serviceAreas, packages, addOns, media, faqs, documents, badges, gates, listingStrength]
+      properties:
+        profile: { $ref: "#/components/schemas/VendorProfile" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/VendorCategorySelection" }
+        serviceAreas:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceArea" }
+        packages:
+          type: array
+          items: { $ref: "#/components/schemas/Package" }
+        addOns:
+          type: array
+          items: { $ref: "#/components/schemas/AddOn" }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/VendorMediaItem" }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+        documents:
+          type: array
+          items: { $ref: "#/components/schemas/VerificationDocument" }
+        badges:
+          type: array
+          items: { $ref: "#/components/schemas/VendorBadge" }
+        gates:
+          type: array
+          items: { $ref: "#/components/schemas/SubmitGate" }
+        listingStrength:
+          type: integer
+          minimum: 0
+          maximum: 100
+
+    VendorPublicResponse:
+      type: object
+      required: [slug, businessName, baseCity, baseCountry, currency, categories, packages, media, faqs, badges, serviceAreas]
+      properties:
+        slug: { type: string }
+        businessName: { type: string }
+        tagline: { type: string }
+        about: { type: string }
+        foundedYear: { type: integer }
+        teamSize: { type: integer }
+        languages:
+          type: array
+          items: { type: string }
+        baseCity: { type: string }
+        baseCountry: { type: string }
+        website: { type: string }
+        instagram: { type: string }
+        currency: { $ref: "#/components/schemas/Currency" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+        packages:
+          type: array
+          items: { $ref: "#/components/schemas/Package" }
+        addOns:
+          type: array
+          items: { $ref: "#/components/schemas/AddOn" }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/VendorMediaItem" }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/VendorFaqItem" }
+        badges:
+          type: array
+          items: { $ref: "#/components/schemas/VendorBadge" }
+        serviceAreas:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceArea" }
+
+    VerificationQueueItem:
+      type: object
+      required: [document, vendorAccountId, businessName, vendorStatus]
+      properties:
+        document: { $ref: "#/components/schemas/VerificationDocument" }
+        vendorAccountId: { type: string, format: uuid }
+        businessName: { type: string }
+        vendorStatus: { $ref: "#/components/schemas/VendorStatus" }
+        mediaUrl: { type: string }
+
+    VerificationQueueResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/VerificationQueueItem" }
+        nextCursor: { type: string }
+
+    VerificationReviewRequest:
+      type: object
+      properties:
+        note: { type: string, maxLength: 1000 }
+        expiresAt:
+          type: string
+          format: date-time
+          description: For INSURANCE approvals — badge expiry.
+
+    # ------------------------------------------------------------------
+    # Phase 4 — availability, calendar sync and booking engine
+    # ------------------------------------------------------------------
+
+    AvailabilityMode:
+      type: string
+      enum: [DATE, SLOT]
+
+    VenueLocationMode:
+      type: string
+      description: VENDOR uses the vendor's saved base location with no travel fee; TRAVEL validates the supplied venue against configured service areas.
+      enum: [VENDOR, TRAVEL]
+
+    AvailabilityStatus:
+      type: string
+      enum: [AVAILABLE, LIMITED, BOOKED, BLACKED_OUT]
+
+    AvailabilityExceptionType:
+      type: string
+      enum: [BLACKOUT, EXTRA_OPEN, CUSTOM_SLOTS]
+
+    CalendarSyncStatus:
+      type: string
+      enum: [PENDING, HEALTHY, DEGRADED]
+
+    BookingStatus:
+      type: string
+      enum:
+        - DRAFT
+        - REQUESTED
+        - VENDOR_ACCEPTED
+        - PENDING_PAYMENT
+        - CONFIRMED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED_BY_CUSTOMER
+        - CANCELLED_BY_VENDOR
+        - DECLINED
+        - EXPIRED
+        - DISPUTED
+
+    BookingActor:
+      type: string
+      enum: [CUSTOMER, VENDOR, SYSTEM, ADMIN]
+
+    BookingDeclineReason:
+      type: string
+      enum: [NOT_AVAILABLE, SCOPE_MISMATCH, PRICE_MISMATCH, SCHEDULING_CONFLICT, OTHER]
+
+    BookingAllowedAction:
+      type: string
+      description: Server-authorized action for the authenticated booking participant.
+      enum:
+        - CONFIRM_PAYMENT_STUB
+        - CANCEL
+        - DISPUTE
+        - ACCEPT
+        - DECLINE
+        - COMPLETE
+        - PROPOSE_RESCHEDULE
+        - RESPOND_RESCHEDULE
+
+    AvailabilitySlot:
+      type: object
+      required: [start, end]
+      properties:
+        start: { type: string, format: time, description: Venue-local wall-clock time. }
+        end: { type: string, format: time, description: Venue-local wall-clock time. }
+        label: { type: string, maxLength: 80 }
+
+    AvailabilityRuleRequest:
+      type: object
+      required: [weekday, isAvailable, jobsPerDay]
+      properties:
+        weekday: { type: integer, minimum: 0, maximum: 6, description: Sunday is 0. }
+        isAvailable: { type: boolean }
+        slots:
+          type: array
+          maxItems: 48
+          items: { $ref: "#/components/schemas/AvailabilitySlot" }
+        jobsPerDay: { type: integer, minimum: 1, maximum: 100 }
+
+    AvailabilitySettingsRequest:
+      type: object
+      required: [mode, timezone, rules]
+      properties:
+        mode: { $ref: "#/components/schemas/AvailabilityMode" }
+        timezone: { type: string, minLength: 1, maxLength: 64, description: IANA timezone. }
+        rules:
+          type: array
+          minItems: 7
+          maxItems: 7
+          items: { $ref: "#/components/schemas/AvailabilityRuleRequest" }
+
+    AvailabilityRule:
+      type: object
+      required: [id, weekday, isAvailable, slots, jobsPerDay]
+      properties:
+        id: { type: string, format: uuid }
+        weekday: { type: integer, minimum: 0, maximum: 6 }
+        isAvailable: { type: boolean }
+        slots: { type: array, items: { $ref: "#/components/schemas/AvailabilitySlot" } }
+        jobsPerDay: { type: integer, minimum: 1, maximum: 100 }
+
+    AvailabilityExceptionRequest:
+      type: object
+      required: [date, type]
+      properties:
+        date: { type: string, format: date }
+        type: { $ref: "#/components/schemas/AvailabilityExceptionType" }
+        slots:
+          type: array
+          maxItems: 48
+          items: { $ref: "#/components/schemas/AvailabilitySlot" }
+        note: { type: string, maxLength: 500 }
+
+    AvailabilityException:
+      type: object
+      required: [id, date, type, slots, source]
+      properties:
+        id: { type: string, format: uuid }
+        date: { type: string, format: date }
+        type: { $ref: "#/components/schemas/AvailabilityExceptionType" }
+        slots: { type: array, items: { $ref: "#/components/schemas/AvailabilitySlot" } }
+        note: { type: string }
+        source: { type: string, enum: [MANUAL, ICS] }
+        externalCalendarId: { type: string, format: uuid }
+
+    AvailabilitySettings:
+      type: object
+      required: [mode, timezone, rules, exceptions]
+      properties:
+        mode: { $ref: "#/components/schemas/AvailabilityMode" }
+        timezone: { type: string }
+        rules: { type: array, items: { $ref: "#/components/schemas/AvailabilityRule" } }
+        exceptions: { type: array, items: { $ref: "#/components/schemas/AvailabilityException" } }
+
+    SlotAvailability:
+      type: object
+      required: [start, end, status]
+      properties:
+        start: { type: string, format: time }
+        end: { type: string, format: time }
+        label: { type: string }
+        status: { $ref: "#/components/schemas/AvailabilityStatus" }
+
+    AvailabilityDay:
+      type: object
+      required: [date, status, capacity, occupied, slots]
+      properties:
+        date: { type: string, format: date }
+        status: { $ref: "#/components/schemas/AvailabilityStatus" }
+        capacity: { type: integer, minimum: 0 }
+        occupied: { type: integer, minimum: 0 }
+        slots: { type: array, items: { $ref: "#/components/schemas/SlotAvailability" } }
+
+    AvailabilityResponse:
+      type: object
+      required: [vendorId, vendorSlug, mode, timezone, from, to, serverNow, days]
+      properties:
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        mode: { $ref: "#/components/schemas/AvailabilityMode" }
+        timezone: { type: string, description: IANA timezone used for all returned dates and slots. }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        serverNow: { type: string, format: date-time }
+        days: { type: array, items: { $ref: "#/components/schemas/AvailabilityDay" } }
+
+    ExternalCalendarRequest:
+      type: object
+      required: [icsUrl]
+      properties:
+        icsUrl: { type: string, format: uri, minLength: 1, maxLength: 2048 }
+
+    ExternalCalendar:
+      type: object
+      required: [id, icsUrl, syncStatus]
+      properties:
+        id: { type: string, format: uuid }
+        icsUrl: { type: string, format: uri }
+        lastSyncedAt: { type: string, format: date-time }
+        syncStatus: { $ref: "#/components/schemas/CalendarSyncStatus" }
+        lastError: { type: string }
+
+    CalendarExport:
+      type: object
+      required: [url, rotatedAt]
+      properties:
+        url: { type: string, format: uri }
+        rotatedAt: { type: string, format: date-time }
+
+    BookingAddOnRequest:
+      type: object
+      required: [addOnId, qty]
+      properties:
+        addOnId: { type: string, format: uuid }
+        qty: { type: integer, minimum: 1, maximum: 999 }
+
+    BookingConfigurationRequest:
+      type: object
+      required: [packageId, eventDate, eventTimezone, venueLocationMode]
+      properties:
+        packageId: { type: string, format: uuid }
+        eventDate: { type: string, format: date }
+        startTime: { type: string, format: time }
+        endTime: { type: string, format: time }
+        eventTimezone: { type: string, minLength: 1, maxLength: 64, description: IANA venue timezone. }
+        guests: { type: integer, minimum: 1, maximum: 100000 }
+        venueLocationMode: { $ref: "#/components/schemas/VenueLocationMode" }
+        venueAddress: { type: string, maxLength: 500 }
+        venueCity: { type: string, maxLength: 120, description: Structured venue city used for REGION service-area matching. }
+        venueCountry: { type: string, pattern: "^[A-Za-z]{2}$", description: ISO 3166-1 alpha-2 venue country used for REGION service-area matching. }
+        venueLat: { type: number, format: double, minimum: -90, maximum: 90 }
+        venueLng: { type: number, format: double, minimum: -180, maximum: 180 }
+        notes: { type: string, maxLength: 3000 }
+        addOns:
+          type: array
+          maxItems: 50
+          items: { $ref: "#/components/schemas/BookingAddOnRequest" }
+        expectedPackageVersion:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Rejects the quote/create operation if the published package changed.
+
+    PriceBreakdown:
+      type: object
+      required: [currency, subtotalCents, addOnsCents, travelFeeCents, discountCents, totalCents, depositPct, depositCents, cancellationPolicy]
+      properties:
+        currency: { $ref: "#/components/schemas/Currency" }
+        subtotalCents: { type: integer, format: int64, minimum: 0 }
+        addOnsCents: { type: integer, format: int64, minimum: 0 }
+        travelFeeCents: { type: integer, format: int64, minimum: 0 }
+        discountCents: { type: integer, format: int64, minimum: 0 }
+        totalCents: { type: integer, format: int64, minimum: 0 }
+        depositPct: { type: integer, minimum: 10, maximum: 100 }
+        depositCents: { type: integer, format: int64, minimum: 0 }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+
+    BookingAddOn:
+      type: object
+      required: [addOnId, title, qty, unitPriceCents, totalCents]
+      properties:
+        addOnId: { type: string, format: uuid }
+        title: { type: string }
+        qty: { type: integer, minimum: 1 }
+        unitPriceCents: { type: integer, format: int64, minimum: 0 }
+        totalCents: { type: integer, format: int64, minimum: 0 }
+
+    BookingQuote:
+      type: object
+      required: [vendorId, vendorSlug, packageTitle, bookingMode, price, addOns, availability, quoteExpiresAt]
+      properties:
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        packageTitle: { type: string }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        price: { $ref: "#/components/schemas/PriceBreakdown" }
+        addOns: { type: array, items: { $ref: "#/components/schemas/BookingAddOn" } }
+        availability: { $ref: "#/components/schemas/AvailabilityStatus" }
+        quoteExpiresAt: { type: string, format: date-time }
+
+    BookingEvent:
+      type: object
+      required: [id, toStatus, actor, metadata, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        fromStatus: { $ref: "#/components/schemas/BookingStatus" }
+        toStatus: { $ref: "#/components/schemas/BookingStatus" }
+        actor: { $ref: "#/components/schemas/BookingActor" }
+        actorId: { type: string, format: uuid }
+        metadata: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+
+    Reschedule:
+      type: object
+      required: [id, eventDate, eventTimezone, customerApproved, vendorApproved, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        eventDate: { type: string, format: date }
+        startTime: { type: string, format: time }
+        endTime: { type: string, format: time }
+        eventTimezone: { type: string }
+        customerApproved: { type: boolean }
+        vendorApproved: { type: boolean }
+        status: { type: string, enum: [PENDING, ACCEPTED, REJECTED] }
+        createdAt: { type: string, format: date-time }
+
+    Booking:
+      type: object
+      required: [id, code, customerId, vendorId, vendorSlug, vendorName, packageId, packageTitle, bookingMode, eventDate, eventTimezone, venueLocationMode, price, addOns, status, vendorPenaltyFlag, version, createdAt, serverNow, allowedActions, events]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        customerId: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        vendorName: { type: string }
+        packageId: { type: string, format: uuid }
+        packageTitle: { type: string }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        eventDate: { type: string, format: date }
+        startTime: { type: string, format: time }
+        endTime: { type: string, format: time }
+        eventTimezone: { type: string }
+        guests: { type: integer }
+        venueLocationMode: { $ref: "#/components/schemas/VenueLocationMode" }
+        venueAddress: { type: string }
+        venueCity: { type: string }
+        venueCountry: { type: string }
+        venueLat: { type: number, format: double }
+        venueLng: { type: number, format: double }
+        notes: { type: string }
+        price: { $ref: "#/components/schemas/PriceBreakdown" }
+        addOns: { type: array, items: { $ref: "#/components/schemas/BookingAddOn" } }
+        status: { $ref: "#/components/schemas/BookingStatus" }
+        holdExpiresAt: { type: string, format: date-time }
+        slaDueAt: { type: string, format: date-time }
+        paymentDueAt: { type: string, format: date-time }
+        confirmedAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time }
+        disputeWindowEndsAt: { type: string, format: date-time }
+        cancelReason: { type: string }
+        vendorPenaltyFlag: { type: boolean }
+        version: { type: integer, format: int64, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+        serverNow: { type: string, format: date-time, description: Use for SLA and payment countdowns without trusting the device clock. }
+        allowedActions:
+          type: array
+          items: { $ref: "#/components/schemas/BookingAllowedAction" }
+        events: { type: array, items: { $ref: "#/components/schemas/BookingEvent" } }
+        pendingReschedule: { $ref: "#/components/schemas/Reschedule" }
+
+    BookingList:
+      type: object
+      required: [items, serverNow]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Booking" } }
+        nextCursor: { type: string, description: Opaque continuation cursor; absent on the final page. }
+        serverNow: { type: string, format: date-time }
+
+    BookingAcceptRequest:
+      type: object
+      required: [version]
+      properties:
+        travelFeeCents: { type: integer, format: int64, minimum: 0 }
+        addOns:
+          type: array
+          maxItems: 50
+          description: Optional replacement quantities for add-ons selected in the original request; omit to keep them unchanged.
+          items: { $ref: "#/components/schemas/BookingAddOnRequest" }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    BookingDeclineRequest:
+      type: object
+      required: [reason, version]
+      properties:
+        reason: { $ref: "#/components/schemas/BookingDeclineReason" }
+        message: { type: string, maxLength: 1000 }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    BookingVersionRequest:
+      type: object
+      required: [version]
+      properties:
+        version: { type: integer, format: int64, minimum: 0 }
+
+    BookingCancelRequest:
+      type: object
+      required: [reason, version]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+        version: { type: integer, format: int64, minimum: 0 }
+        refundCalculationId:
+          type: string
+          format: uuid
+          description: Required for customer cancellation; use the latest non-expired refund preview.
+
+    BookingDisputeRequest:
+      type: object
+      required: [reason, version]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 2000 }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    RefundCalculation:
+      type: object
+      required: [calculationId, bookingId, policy, daysToEvent, refundPercent, refundableCents, nonRefundableCents, vendorPenalty, calculatedAt]
+      properties:
+        calculationId: { type: string, format: uuid }
+        bookingId: { type: string, format: uuid }
+        policy: { $ref: "#/components/schemas/CancellationPolicy" }
+        daysToEvent: { type: integer }
+        refundPercent: { type: integer, minimum: 0, maximum: 100 }
+        refundableCents: { type: integer, format: int64, minimum: 0 }
+        nonRefundableCents: { type: integer, format: int64, minimum: 0 }
+        vendorPenalty: { type: boolean }
+        calculatedAt: { type: string, format: date-time }
+
+    RescheduleProposalRequest:
+      type: object
+      required: [eventDate, eventTimezone, version]
+      properties:
+        eventDate: { type: string, format: date }
+        startTime: { type: string, format: time }
+        endTime: { type: string, format: time }
+        eventTimezone: { type: string, minLength: 1, maxLength: 64 }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    RescheduleDecisionRequest:
+      type: object
+      required: [accept, version]
+      properties:
+        accept: { type: boolean }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    SearchSort: { type: string, enum: [RELEVANCE, PRICE_ASC, PRICE_DESC, RATING, NEWEST] }
+    EventType: { type: string, enum: [WEDDING, CORPORATE, BIRTHDAY, CULTURAL, OTHER] }
+    ShowcaseStatus: { type: string, enum: [DRAFT, PUBLISHED, FLAGGED] }
+    TagStatus: { type: string, enum: [PENDING, ACCEPTED, DECLINED] }
+    EntityType: { type: string, enum: [VENDOR, SHOWCASE, PACKAGE] }
+
+    PackageSummary:
+      type: object
+      required: [id, title, priceCents, currency, pricingModel, bookingMode, depositPct, cancellationPolicy]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        pricingModel: { $ref: "#/components/schemas/PricingModel" }
+        bookingMode: { $ref: "#/components/schemas/BookingMode" }
+        depositPct: { type: integer }
+        cancellationPolicy: { $ref: "#/components/schemas/CancellationPolicy" }
+        whatsIncludedMd: { type: string }
+        coverUrl: { type: string }
+    VendorCard:
+      type: object
+      required: [vendorId, slug, businessName, city, country, currency, categories, cheapestPackage, badges, nextAvailableDates]
+      properties:
+        vendorId: { type: string, format: uuid }
+        slug: { type: string }
+        businessName: { type: string }
+        tagline: { type: string }
+        city: { type: string }
+        country: { type: string }
+        currency: { $ref: "#/components/schemas/Currency" }
+        categories: { type: array, items: { type: string } }
+        cheapestPackage: { $ref: "#/components/schemas/PackageSummary" }
+        badges: { type: array, items: { type: string } }
+        coverUrl: { type: string }
+        distanceKm: { type: number, format: double }
+        nextAvailableDates: { type: array, description: Empty until Phase 4., items: { type: string, format: date } }
+        relevance: { type: number, format: double }
+    FacetValue:
+      type: object
+      required: [value, count]
+      properties: { value: { type: string }, count: { type: integer, format: int64 } }
+    SearchFacets:
+      type: object
+      required: [categories, cities, badges, bookingModes]
+      properties:
+        categories: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        cities: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        badges: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+        bookingModes: { type: array, items: { $ref: "#/components/schemas/FacetValue" } }
+    RelaxationSuggestion:
+      type: object
+      required: [type, label, value]
+      properties: { type: { type: string }, label: { type: string }, value: { type: string } }
+    VendorSearchResponse:
+      type: object
+      required: [items, facets, suggestions, total]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/VendorCard" } }
+        facets: { $ref: "#/components/schemas/SearchFacets" }
+        suggestions: { type: array, items: { $ref: "#/components/schemas/RelaxationSuggestion" } }
+        nextCursor: { type: string }
+        total: { type: integer, format: int64 }
+
+    ShowcaseMediaRequest:
+      type: object
+      required: [mediaId]
+      properties:
+        mediaId: { type: string, format: uuid }
+        caption: { type: string, maxLength: 300 }
+        sort: { type: integer }
+    ShowcaseVendorTagRequest:
+      type: object
+      required: [vendorId, roleLabel]
+      properties:
+        vendorId: { type: string, format: uuid }
+        roleLabel: { type: string, maxLength: 120 }
+    ShowcaseRequest:
+      type: object
+      required: [title, eventType, city, country, coverMediaId, media]
+      properties:
+        title: { type: string, maxLength: 180 }
+        eventType: { $ref: "#/components/schemas/EventType" }
+        eventDate: { type: string, format: date }
+        city: { type: string, maxLength: 120 }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        coverMediaId: { type: string, format: uuid }
+        descriptionMd: { type: string, maxLength: 10000 }
+        styleTags: { type: array, maxItems: 12, items: { type: string } }
+        media: { type: array, minItems: 1, maxItems: 40, items: { $ref: "#/components/schemas/ShowcaseMediaRequest" } }
+        vendorTags: { type: array, maxItems: 20, items: { $ref: "#/components/schemas/ShowcaseVendorTagRequest" } }
+        status: { $ref: "#/components/schemas/ShowcaseStatus" }
+    ShowcaseMedia:
+      type: object
+      required: [id, mediaId, sort, url]
+      properties:
+        id: { type: string, format: uuid }
+        mediaId: { type: string, format: uuid }
+        caption: { type: string }
+        sort: { type: integer }
+        url: { type: string }
+        width: { type: integer }
+        height: { type: integer }
+        blurhash: { type: string }
+    ShowcaseVendorTag:
+      type: object
+      required: [id, vendorId, vendorSlug, businessName, roleLabel, status]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        businessName: { type: string }
+        roleLabel: { type: string }
+        status: { $ref: "#/components/schemas/TagStatus" }
+    Showcase:
+      type: object
+      required: [id, ownerVendorId, ownerVendorSlug, ownerBusinessName, title, slug, eventType, city, country, status, styleTags, media, vendorTags, createdAt, favorite]
+      properties:
+        id: { type: string, format: uuid }
+        ownerVendorId: { type: string, format: uuid }
+        ownerVendorSlug: { type: string }
+        ownerBusinessName: { type: string }
+        title: { type: string }
+        slug: { type: string }
+        eventType: { $ref: "#/components/schemas/EventType" }
+        eventDate: { type: string, format: date }
+        city: { type: string }
+        country: { type: string }
+        descriptionMd: { type: string }
+        status: { $ref: "#/components/schemas/ShowcaseStatus" }
+        styleTags: { type: array, items: { type: string } }
+        coverUrl: { type: string }
+        media: { type: array, items: { $ref: "#/components/schemas/ShowcaseMedia" } }
+        vendorTags: { type: array, items: { $ref: "#/components/schemas/ShowcaseVendorTag" } }
+        createdAt: { type: string, format: date-time }
+        favorite: { type: boolean }
+    ShowcaseFeedResponse:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Showcase" } }
+        nextCursor: { type: string }
+
+    FavoriteRequest:
+      type: object
+      required: [entityType, entityId]
+      properties:
+        entityType: { $ref: "#/components/schemas/EntityType" }
+        entityId: { type: string, format: uuid }
+    Favorite:
+      type: object
+      required: [entityType, entityId, createdAt]
+      properties:
+        entityType: { $ref: "#/components/schemas/EntityType" }
+        entityId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+    FavoriteListResponse:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/Favorite" } } }
+    ShortlistRequest:
+      type: object
+      required: [name]
+      properties: { name: { type: string, maxLength: 120 } }
+    ShortlistItemRequest:
+      type: object
+      required: [vendorId]
+      properties:
+        vendorId: { type: string, format: uuid }
+        packageId: { type: string, format: uuid }
+        note: { type: string, maxLength: 500 }
+    ShortlistItem:
+      type: object
+      required: [id, vendorId, vendorSlug, businessName]
+      properties:
+        id: { type: string, format: uuid }
+        vendorId: { type: string, format: uuid }
+        vendorSlug: { type: string }
+        businessName: { type: string }
+        packageId: { type: string, format: uuid }
+        packageTitle: { type: string }
+        priceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        note: { type: string }
+    Shortlist:
+      type: object
+      required: [id, name, items, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        items: { type: array, items: { $ref: "#/components/schemas/ShortlistItem" } }
+        createdAt: { type: string, format: date-time }
+    ShortlistListResponse:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/Shortlist" } } }
+    CompareResponse:
+      type: object
+      required: [items, displayCurrency, approximatePrices, fxNotice]
+      properties:
+        items: { type: array, maxItems: 4, items: { $ref: "#/components/schemas/VendorCard" } }
+        displayCurrency: { $ref: "#/components/schemas/Currency" }
+        approximatePrices: { type: object, additionalProperties: { type: integer, format: int64 } }
+        fxNotice: { type: string }
+
+    SeoFaq:
+      type: object
+      required: [question, answer]
+      properties: { question: { type: string }, answer: { type: string } }
+    LandingPage:
+      type: object
+      required: [country, city, categorySlug, categoryName, vendorCount, currency, vendors, faqs, siblingCities, siblingCategories]
+      properties:
+        country: { type: string }
+        city: { type: string }
+        categorySlug: { type: string }
+        categoryName: { type: string }
+        vendorCount: { type: integer, format: int64 }
+        minimumPriceCents: { type: integer, format: int64 }
+        maximumPriceCents: { type: integer, format: int64 }
+        medianPriceCents: { type: integer, format: int64 }
+        currency: { $ref: "#/components/schemas/Currency" }
+        vendors: { type: array, items: { $ref: "#/components/schemas/VendorCard" } }
+        faqs: { type: array, items: { $ref: "#/components/schemas/SeoFaq" } }
+        siblingCities: { type: array, items: { type: string } }
+        siblingCategories: { type: array, items: { type: string } }
+    LandingRoute:
+      type: object
+      required: [country, city, category]
+      properties: { country: { type: string }, city: { type: string }, category: { type: string } }
+    LandingRouteList:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/LandingRoute" } } }
 
 security:
   - bearerAuth: []

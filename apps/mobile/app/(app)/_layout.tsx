@@ -37,10 +37,47 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="explore"
+        options={{
+          title: "Explore",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>⌕</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="inspiration"
+        options={{
+          title: "Inspiration",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>▦</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          title: activeRole === "VENDOR" ? "Requests" : "Bookings",
+          href: activeRole === "CUSTOMER" || activeRole === "VENDOR" ? undefined : null,
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>▦</Text>,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>⚙</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="vendor"
+        options={{
+          title: "My Listing",
+          href: activeRole === "VENDOR" ? undefined : null,
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>◇</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="availability"
+        options={{
+          href: null,
+          title: "Availability",
         }}
       />
     </Tabs>

@@ -4,10 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { apiErrorMessage } from "@wedjan/shared";
 import { api } from "@/lib/api";
+import { authRoute, safeAuthReturnPath } from "@/lib/auth-return";
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const returnPath = safeAuthReturnPath(searchParams.get("next"));
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -26,7 +28,7 @@ function ResetPasswordForm() {
         setError(apiErrorMessage(body, "Reset failed — check the code"));
         return;
       }
-      router.push("/login");
+      router.push(authRoute("/login", returnPath));
     } finally {
       setSubmitting(false);
     }

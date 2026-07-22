@@ -1,0 +1,1 @@
+import { xmlResponse,xmlUrls,getRoutes,getLanding,WEB } from "../sitemap-utils";export async function GET(){const slugs=new Set<string>();for(const route of await getRoutes()){const page=await getLanding(route);page?.vendors.forEach((x:{slug:string})=>slugs.add(x.slug))}return xmlResponse(xmlUrls([...slugs].map(x=>`${WEB}/v/${x}`)))}

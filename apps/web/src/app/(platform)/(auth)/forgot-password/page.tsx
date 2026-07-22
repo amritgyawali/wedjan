@@ -1,11 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
+import { authRoute, safeAuthReturnPath } from "@/lib/auth-return";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPath = safeAuthReturnPath(searchParams.get("next"));
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -15,7 +19,7 @@ export default function ForgotPasswordPage() {
     try {
       await api.POST("/api/v1/auth/password-reset/request", { body: { email } });
       // Always continue — the API never reveals whether the email exists.
-      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      router.push(authRoute("/reset-password", returnPath, { email }));
     } finally {
       setSubmitting(false);
     }
@@ -42,8 +46,19 @@ export default function ForgotPasswordPage() {
         </button>
       </form>
       <p className="auth-alt">
-        Remembered it? <a className="text-link" href="/login">Log in</a>
+        Remembered it?{" "}
+        <Link className="text-link" href={authRoute("/login", returnPath)}>
+          Log in
+        </Link>
       </p>
     </>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<p>Preparing password reset…</p>}>
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }
