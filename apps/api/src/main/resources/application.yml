@@ -40,6 +40,7 @@ management:
 
 wedjan:
   public-web-url: ${PUBLIC_WEB_URL:http://localhost:3000}
+  public-api-url: ${PUBLIC_API_URL:http://localhost:8080}
   auth:
     # HS256 signing key — MUST be overridden outside local dev.
     jwt-secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
@@ -67,6 +68,15 @@ wedjan:
   seed:
     enabled: ${SEED_ENABLED:false}
     demo-password: ${SEED_DEMO_PASSWORD:Demo@wedjan1}
+  booking:
+    # Temporary Phase 4 handoff. Set false in production; Phase 5 replaces it
+    # with signed Stripe webhook confirmation.
+    payment-stub-enabled: ${PAYMENT_STUB_ENABLED:false}
+  calendar:
+    # Production must keep private-network calendar URLs disabled to prevent
+    # server-side requests to internal services. Tests opt in explicitly.
+    allow-private-urls: ${CALENDAR_ALLOW_PRIVATE_URLS:false}
+    max-response-bytes: ${CALENDAR_MAX_RESPONSE_BYTES:1048576}
 
 logging:
   level:

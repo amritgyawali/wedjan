@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 import { apiErrorMessage } from "@wedjan/shared";
 import { api } from "@/lib/api";
+import { authRoute, safeAuthReturnPath } from "@/lib/auth-return";
 import { Icon } from "@/components/platform/icon";
 
 const ROLE_OPTIONS = [
@@ -30,8 +31,10 @@ const ROLE_OPTIONS = [
 
 type SignupRole = (typeof ROLE_OPTIONS)[number]["role"];
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPath = safeAuthReturnPath(searchParams.get("next"));
   const [role, setRole] = useState<SignupRole>("CUSTOMER");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,7 +53,7 @@ export default function SignupPage() {
         setError(apiErrorMessage(body, "Signup failed — try again"));
         return;
       }
-      router.push(`/verify?email=${encodeURIComponent(email)}`);
+      router.push(authRoute("/verify", returnPath, { email }));
     } finally {
       setSubmitting(false);
     }
@@ -109,8 +112,19 @@ export default function SignupPage() {
         </button>
       </form>
       <p className="auth-alt">
-        Already have an account? <Link className="text-link" href="/login">Log in</Link>
+        Already have an account?{" "}
+        <Link className="text-link" href={authRoute("/login", returnPath)}>
+          Log in
+        </Link>
       </p>
     </>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<p>Preparing signup…</p>}>
+      <SignupForm />
+    </Suspense>
   );
 }

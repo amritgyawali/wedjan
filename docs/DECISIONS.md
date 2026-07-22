@@ -204,3 +204,66 @@ Format per entry:
   its controls and CTAs to go live. The freeze manifest is re-baselined only for these links.
 - Consequences: The homepage looks identical; its controls now enter real search, inspiration,
   auth, and onboarding flows. Future visual edits still fail the manifest guard.
+
+## ADR-017 — DATE availability uses numbered capacity slots
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Allocate `capacity_slot` from `1..jobs_per_day` while holding a vendor/date
+  advisory lock, and partially unique `(vendor_id,event_date,capacity_slot)` for availability-
+  consuming DATE statuses. SLOT bookings use a GiST exclusion constraint over canonical UTC
+  ranges.
+- Context: The prompt requires both configurable `jobs_per_day` and a unique vendor/date guard;
+  a plain unique pair would silently force every vendor's capacity to one.
+- Consequences: PostgreSQL remains the final double-booking guard while supporting limited
+  availability. Redis serializes checkout attempts, and a durable hold row survives cache loss.
+
+## ADR-018 — Cancellation shorthand resolves at the named full and partial boundaries
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Use inclusive, gap-free refund tiers: FLEXIBLE is 100% at ≥30 days, 50% at
+  14–29, then 0%; MODERATE is 100% at ≥60, 50% at 30–59, then 0%; STRICT is 100% at
+  ≥90, 25% at 45–89, then 0%. Vendor-fault cancellation is always 100%.
+- Context: The prompt's additional lower zero-day examples (`<7`, `<14`, `<30`) leave the
+  intervening bands undefined. Property and boundary tests need one deterministic table, and
+  Phase 5 must execute exactly what Phase 4 previews.
+- Consequences: The pure cent-safe policy engine owns both preview and final calculation; a
+  finalized `refund_calculations` row becomes Phase 5's immutable execution input.
+
+## ADR-019 — Phase 4 payment confirmation is an explicitly non-production handoff
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Request acceptance records `VENDOR_ACCEPTED` and immediately enters
+  `PENDING_PAYMENT` with a 24-hour hold. The Phase 4 confirmation endpoint is enabled only by
+  `PAYMENT_STUB_ENABLED`; production sets it false until Phase 5 replaces it with verified
+  Stripe state.
+- Context: Phase 4 must prove the complete state cycle, but Product Law #3 forbids a permanent
+  client-callable payment bypass.
+- Consequences: The state/event contract is stable for web and mobile now, while deployment
+  cannot mark an unpaid booking confirmed once the stub flag is disabled.
+
+## ADR-020 — Booking prices are server-derived from published units
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: FLAT and STARTING_AT snapshot the published amount; PER_GUEST multiplies by the
+  validated guest count; PER_HOUR prorates by configured minutes and rounds up to the next cent.
+  Add-ons follow their own pricing model. Create-time travel uses the lowest eligible V2 service-
+  area fee, and a request vendor may adjust only travel before acceptance.
+- Context: The Phase 2 model has no STARTING_AT configuration choices or distance bands, so the
+  client cannot authoritatively resolve a higher quote or distance curve.
+- Consequences: Every displayed total and deposit is integer minor-unit server output. A later
+  distance-band model can extend service areas without changing booking snapshots.
+
+## ADR-021 — iCalendar sync ships with the booking engine
+- Date: 2026-07-15
+- Phase: 4
+- Status: Accepted
+- Decision: Implement hourly conditional iCalendar pull, last-good blackout retention on
+  degradation, manual retry/disconnect, and opaque-token confirmed-booking export in Phase 4.
+- Context: `02-features.md` originally placed calendar sync in the later Vendor OS, while the
+  canonical 15-phase Phase 4 prompt explicitly makes import/export an acceptance gate.
+- Consequences: Phase 11 can add provider-specific OAuth and team calendar UX on top of this
+  reusable iCalendar baseline rather than introducing the first external-calendar model then.

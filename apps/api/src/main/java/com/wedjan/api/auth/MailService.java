@@ -64,6 +64,20 @@ public class MailService {
                         + "\n\nYou can decline if this association is not accurate.");
     }
 
+    @Async
+    public void sendBookingUpdate(String email, String code, String headline, String detailUrl) {
+        send(email, headline + " · " + code,
+                headline + "\n\nBooking " + code + " has an update.\n\nView the current status: "
+                        + detailUrl + "\n\nDeadlines and prices shown in wedjan are authoritative.");
+    }
+
+    @Async
+    public void sendCalendarDegraded(String email, String dashboardUrl) {
+        send(email, "A connected calendar needs attention",
+                "wedjan could not refresh one of your connected calendars. Your last successfully synced busy dates remain protected.\n\n"
+                        + "Retry or update the feed from: " + dashboardUrl);
+    }
+
     private void send(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

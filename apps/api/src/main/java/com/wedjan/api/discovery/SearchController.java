@@ -1,6 +1,7 @@
 package com.wedjan.api.discovery;
 
 import com.wedjan.api.config.JwtAuthFilter;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,10 +28,11 @@ public class SearchController {
             @RequestParam(required=false) Integer guests,
             @RequestParam(required=false) List<String> badges,
             @RequestParam(name="booking_mode",required=false) String bookingMode,
+            @RequestParam(required=false) LocalDate date,
             @RequestParam(required=false) DiscoveryDtos.SearchSort sort,
             @RequestParam(required=false) String cursor,
             @RequestHeader(name="X-Search-Session",required=false) String sessionId) {
         return service.search(q,category,city,lat,lng,radiusKm,priceMin,priceMax,guests,
-                badges,bookingMode,sort,cursor,JwtAuthFilter.currentAccountId(),sessionId);
+                badges,bookingMode,date,sort,cursor,JwtAuthFilter.currentAccountId(),sessionId);
     }
 }

@@ -52,6 +52,14 @@ pnpm codegen               # regenerate TS client from packages/shared/openapi.y
 pnpm guard:homepage        # verify the frozen homepage is untouched
 ```
 
+**Working inside OneDrive/Dropbox?** The sync client intermittently locks Gradle's
+build outputs and fails the API build with `Unable to delete directory`. Point the
+build directory at local disk:
+
+```bash
+WEDJAN_BUILD_DIR=/c/temp/wedjan-api-build   # or -PwedjanBuildDir=... per invocation
+```
+
 ## The Homepage Rule (ADR-001)
 
 The homepage (`apps/web/src/app/page.tsx`, `src/components/home/**`, `src/data/home.ts`,

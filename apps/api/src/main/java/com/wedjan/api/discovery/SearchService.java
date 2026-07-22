@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
@@ -46,7 +47,7 @@ public class SearchService {
     @Transactional(readOnly = true)
     public VendorSearchResponse search(String query, String category, String city,
             Double lat, Double lng, Double radiusKm, Long priceMin, Long priceMax,
-            Integer guests, List<String> badges, String bookingMode, SearchSort sort,
+            Integer guests, List<String> badges, String bookingMode, LocalDate date, SearchSort sort,
             String cursor, UUID accountId, String sessionId) {
         long started = System.nanoTime();
         String q = clean(query);
@@ -133,6 +134,17 @@ public class SearchService {
             params.add(guests); params.add(guests);
         }
         if (bookingMode != null) { sql.append(" AND p.booking_mode=?"); params.add(bookingMode); }
+        if (date != null) {
+            // Past/same-day checks are intentionally vendor-local; a global JVM date
+            // would incorrectly include or exclude vendors across timezone boundaries.
+            sql.append("""
+                     AND EXISTS (SELECT 1 FROM get_availability(vp.account_id,?,?) ga
+                         WHERE ga.status IN ('AVAILABLE','LIMITED'))
+                     AND ? >= (current_timestamp AT TIME ZONE vp.timezone)::date
+                     AND (? > (current_timestamp AT TIME ZONE vp.timezone)::date OR p.allow_same_day)
+                    """);
+            params.add(date); params.add(date); params.add(date); params.add(date);
+        }
         for (String badge : badgeFilters) {
             sql.append("""
                      AND EXISTS (SELECT 1 FROM vendor_badges bf WHERE bf.vendor_id=vp.account_id
@@ -154,7 +166,8 @@ public class SearchService {
         SearchFacets facets = facets(rows);
         int offset = cursorOffset(cursor, all);
         int end = Math.min(offset + PAGE_SIZE, all.size());
-        List<VendorCard> page = offset >= all.size() ? List.of() : List.copyOf(all.subList(offset, end));
+        List<VendorCard> page = offset >= all.size() ? List.of()
+                : withNextAvailableDates(List.copyOf(all.subList(offset, end)));
         String next = end < all.size() && !page.isEmpty() ? encodeCursor(page.getLast().vendorId()) : null;
         List<RelaxationSuggestion> suggestions = all.isEmpty()
                 ? relaxations(categorySlug, cityName, priceMin, priceMax) : List.of();
@@ -164,7 +177,8 @@ public class SearchService {
         put(filters, "lat", lat); put(filters, "lng", lng); put(filters, "radiusKm", radiusKm);
         put(filters, "priceMin", priceMin); put(filters, "priceMax", priceMax);
         put(filters, "guests", guests); put(filters, "badges", badgeFilters);
-        put(filters, "bookingMode", bookingMode); put(filters, "sort", effectiveSort.name());
+        put(filters, "bookingMode", bookingMode); put(filters, "date", date);
+        put(filters, "sort", effectiveSort.name());
         long durationMs = (System.nanoTime() - started) / 1_000_000;
         analytics.record(q, filters, all.size(), accountId, clean(sessionId), durationMs);
         return new VendorSearchResponse(page, facets, suggestions, next, all.size());
@@ -276,6 +290,31 @@ public class SearchService {
         if (min != null && min < 0 || max != null && max < 0 || min != null && max != null && min > max) throw ApiException.badRequest("SEARCH_PRICE_INVALID", "Invalid price range");
         if (guests != null && guests < 1) throw ApiException.badRequest("SEARCH_GUESTS_INVALID", "Guests must be positive");
         if (bookingMode != null && !BOOKING_MODES.contains(bookingMode)) throw ApiException.badRequest("SEARCH_BOOKING_MODE_INVALID", "Booking mode must be INSTANT or REQUEST");
+    }
+
+    private List<VendorCard> withNextAvailableDates(List<VendorCard> cards) {
+        if (cards.isEmpty()) return cards;
+        String values = String.join(",", java.util.Collections.nCopies(cards.size(), "(?::uuid)"));
+        List<Object> ids = cards.stream().map(VendorCard::vendorId).map(id -> (Object) id).toList();
+        Map<UUID, List<LocalDate>> dates = new HashMap<>();
+        jdbc.query("""
+                WITH requested(vendor_id) AS (VALUES %s)
+                SELECT requested.vendor_id, available.date
+                FROM requested
+                JOIN vendor_profiles vp ON vp.account_id=requested.vendor_id
+                CROSS JOIN LATERAL (
+                    SELECT date FROM get_availability(requested.vendor_id,
+                        (current_timestamp AT TIME ZONE vp.timezone)::date+1,
+                        (current_timestamp AT TIME ZONE vp.timezone)::date+90)
+                    WHERE status IN ('AVAILABLE','LIMITED') ORDER BY date LIMIT 3
+                ) available ORDER BY requested.vendor_id,available.date
+                """.formatted(values), (org.springframework.jdbc.core.RowCallbackHandler) rs ->
+                dates.computeIfAbsent(rs.getObject("vendor_id", UUID.class), ignored -> new ArrayList<>())
+                        .add(rs.getObject("date", LocalDate.class)), ids.toArray());
+        return cards.stream().map(card -> new VendorCard(card.vendorId(), card.slug(), card.businessName(),
+                card.tagline(), card.city(), card.country(), card.currency(), card.categories(),
+                card.cheapestPackage(), card.badges(), card.coverUrl(), card.distanceKm(),
+                List.copyOf(dates.getOrDefault(card.vendorId(), List.of())), card.relevance())).toList();
     }
 
     private static void facet(Map<String, Set<UUID>> target, String value, UUID vendorId) {

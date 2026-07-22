@@ -111,7 +111,8 @@ public class VendorService {
                     languages=COALESCE(?,languages), base_city=COALESCE(?,base_city),
                     base_country=COALESCE(?,base_country), lat=COALESCE(?,lat), lng=COALESCE(?,lng),
                     website=COALESCE(?,website), instagram=COALESCE(?,instagram),
-                    currency=COALESCE(?,currency), onboarding_step=GREATEST(onboarding_step,COALESCE(?,onboarding_step)),
+                    currency=COALESCE(?,currency),
+                    onboarding_step=GREATEST(onboarding_step,COALESCE(?,onboarding_step)),
                     status=CASE WHEN ? THEN 'UNDER_REVIEW' ELSE status END,
                     rejection_reason=CASE WHEN ? THEN NULL ELSE rejection_reason END,
                     version=version+1, updated_at=now()
@@ -192,8 +193,8 @@ public class VendorService {
         jdbc.update("""
                 INSERT INTO packages(id,vendor_id,category_id,title,slug,description_md,price_cents,
                     currency,pricing_model,min_guests,max_guests,duration_minutes,whats_included_md,
-                    whats_excluded_md,booking_mode,deposit_pct,cancellation_policy,cover_media_id,sort,created_by)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    whats_excluded_md,booking_mode,deposit_pct,cancellation_policy,allow_same_day,cover_media_id,sort,created_by)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 """, id, accountId, request.categoryId(), request.title().trim(), slug,
                 clean(request.descriptionMd()), request.priceCents(), currency, request.pricingModel().name(),
                 request.minGuests(), request.maxGuests(), request.durationMinutes(),
@@ -201,7 +202,7 @@ public class VendorService {
                 value(request.bookingMode(), VendorDtos.BookingMode.REQUEST).name(),
                 value(request.depositPct(), 25),
                 value(request.cancellationPolicy(), VendorDtos.CancellationPolicy.MODERATE).name(),
-                request.coverMediaId(), value(request.sort(), 0), accountId);
+                Boolean.TRUE.equals(request.allowSameDay()), request.coverMediaId(), value(request.sort(), 0), accountId);
         advance(accountId, 4);
         return packageById(accountId, id);
     }
@@ -214,8 +215,8 @@ public class VendorService {
         if (published) {
             jdbc.update("""
                     INSERT INTO package_price_versions(id,package_id,version,price_cents,currency,
-                        pricing_model,deposit_pct,cancellation_policy,booking_mode)
-                    SELECT ?,id,version,price_cents,currency,pricing_model,deposit_pct,cancellation_policy,booking_mode
+                        pricing_model,deposit_pct,cancellation_policy,booking_mode,allow_same_day)
+                    SELECT ?,id,version,price_cents,currency,pricing_model,deposit_pct,cancellation_policy,booking_mode,allow_same_day
                     FROM packages WHERE id=?
                     ON CONFLICT (package_id,version) DO NOTHING
                     """, Uuidv7.next(), packageId);
@@ -223,7 +224,7 @@ public class VendorService {
         int count = jdbc.update("""
                 UPDATE packages SET category_id=?,title=?,description_md=?,price_cents=?,pricing_model=?,
                     min_guests=?,max_guests=?,duration_minutes=?,whats_included_md=?,whats_excluded_md=?,
-                    booking_mode=?,deposit_pct=?,cancellation_policy=?,cover_media_id=?,sort=?,
+                    booking_mode=?,deposit_pct=?,cancellation_policy=?,allow_same_day=?,cover_media_id=?,sort=?,
                     version=version+1,updated_at=now()
                 WHERE id=? AND vendor_id=? AND deleted_at IS NULL AND status<>'ARCHIVED'
                 """, request.categoryId(), request.title().trim(), clean(request.descriptionMd()),
@@ -232,7 +233,7 @@ public class VendorService {
                 value(request.bookingMode(), VendorDtos.BookingMode.REQUEST).name(),
                 value(request.depositPct(), 25),
                 value(request.cancellationPolicy(), VendorDtos.CancellationPolicy.MODERATE).name(),
-                request.coverMediaId(), value(request.sort(), 0), packageId, accountId);
+                Boolean.TRUE.equals(request.allowSameDay()), request.coverMediaId(), value(request.sort(), 0), packageId, accountId);
         if (count == 0) throw notFound("Package");
         return packageById(accountId, packageId);
     }
@@ -501,7 +502,8 @@ public class VendorService {
             return jdbc.queryForObject("""
                     SELECT account_id,business_name,slug,tagline,about,founded_year,team_size,languages,
                         base_city,base_country,lat,lng,website,instagram,status,rejection_reason,
-                        onboarding_step,currency FROM vendor_profiles WHERE account_id=? AND deleted_at IS NULL
+                        onboarding_step,currency,availability_mode,timezone
+                    FROM vendor_profiles WHERE account_id=? AND deleted_at IS NULL
                     """, this::mapProfile, accountId);
         } catch (EmptyResultDataAccessException ex) {
             throw notFound(publicRead ? "Vendor" : "Vendor profile");
@@ -609,7 +611,7 @@ public class VendorService {
                 SELECT p.id,p.vendor_id,p.category_id,p.title,p.slug,p.description_md,p.price_cents,
                     p.currency,p.pricing_model,p.min_guests,p.max_guests,p.duration_minutes,
                     p.whats_included_md,p.whats_excluded_md,p.booking_mode,p.deposit_pct,
-                    p.cancellation_policy,p.status,p.cover_media_id,p.sort,m.storage_key cover_storage_key
+                    p.cancellation_policy,p.status,p.allow_same_day,p.version,p.cover_media_id,p.sort,m.storage_key cover_storage_key
                 FROM packages p LEFT JOIN media_assets m ON m.id=p.cover_media_id
                 """;
     }
@@ -787,7 +789,8 @@ public class VendorService {
                 integer(rs, "founded_year"), integer(rs, "team_size"), languages, rs.getString("base_city"),
                 rs.getString("base_country"), decimal(rs, "lat"), decimal(rs, "lng"), rs.getString("website"),
                 rs.getString("instagram"), VendorStatus.valueOf(rs.getString("status")),
-                rs.getString("rejection_reason"), rs.getInt("onboarding_step"), rs.getString("currency"));
+                rs.getString("rejection_reason"), rs.getInt("onboarding_step"), rs.getString("currency"),
+                rs.getString("availability_mode"), rs.getString("timezone"));
     }
 
     private ServiceArea mapServiceArea(ResultSet rs, int n) throws SQLException {
@@ -804,7 +807,8 @@ public class VendorService {
                 integer(rs, "max_guests"), integer(rs, "duration_minutes"), rs.getString("whats_included_md"),
                 rs.getString("whats_excluded_md"), VendorDtos.BookingMode.valueOf(rs.getString("booking_mode")),
                 rs.getInt("deposit_pct"), VendorDtos.CancellationPolicy.valueOf(rs.getString("cancellation_policy")),
-                PackageStatus.valueOf(rs.getString("status")), rs.getObject("cover_media_id", UUID.class),
+                PackageStatus.valueOf(rs.getString("status")), rs.getBoolean("allow_same_day"),
+                rs.getLong("version"), rs.getObject("cover_media_id", UUID.class),
                 mediaUrl(rs.getString("cover_storage_key")), rs.getInt("sort"));
     }
 

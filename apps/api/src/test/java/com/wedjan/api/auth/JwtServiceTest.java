@@ -13,7 +13,8 @@ class JwtServiceTest {
             new WedjanProperties.Auth(
                     "test-secret-test-secret-test-secret-test-secret", 900, 30, 15, 5,
                     "wedjan_refresh", false),
-            null, null, null, null, null));
+            null, null, null, null, new WedjanProperties.Booking(true),
+            new WedjanProperties.CalendarSync(false, 1_048_576), null, null));
 
     @Test
     void roundTripsAccessTokenClaims() {

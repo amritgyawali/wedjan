@@ -114,15 +114,16 @@ public class DevSeedRunner implements CommandLineRunner {
                     .replaceAll("-$", "");
             jdbc.update("""
                     INSERT INTO vendor_profiles(account_id,business_name,slug,tagline,about,team_size,
-                        languages,base_city,base_country,status,is_public,onboarding_step,currency,created_by)
-                    VALUES (?,?,?,?,?,5,ARRAY['English'],?,?,'VERIFIED',true,7,?,?)
+                        languages,base_city,base_country,status,is_public,onboarding_step,currency,timezone,created_by)
+                    VALUES (?,?,?,?,?,5,ARRAY['English'],?,?,'VERIFIED',true,7,?,?,?)
                     ON CONFLICT (account_id) DO NOTHING
                     """, account.getId(), name, slug, "Thoughtful event services in " + city,
                     "A trusted wedjan demo supplier with transparent packages, an experienced local team, "
                             + "and a practical approach to memorable celebrations. We plan carefully, communicate "
                             + "clearly, and tailor every detail while keeping the final price visible from day one. "
                             + "Our team serves couples, families, and event hosts across the city and nearby areas.",
-                    city, country, currency, account.getId());
+                    city, country, currency,
+                    kathmandu ? "Asia/Kathmandu" : "Australia/Melbourne", account.getId());
             jdbc.update("""
                     INSERT INTO vendor_categories(id,vendor_id,category_id,is_primary,created_by)
                     VALUES (?,?,?,?,?) ON CONFLICT (vendor_id,category_id) DO NOTHING

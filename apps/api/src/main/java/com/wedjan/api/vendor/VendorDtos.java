@@ -32,7 +32,7 @@ public final class VendorDtos {
             String about, Integer foundedYear, Integer teamSize, List<String> languages,
             String baseCity, String baseCountry, Double lat, Double lng, String website,
             String instagram, VendorStatus status, String rejectionReason, int onboardingStep,
-            String currency) {}
+            String currency, String availabilityMode, String timezone) {}
 
     public record VendorProfileUpdateRequest(
             @Size(max = 160) String businessName,
@@ -80,6 +80,7 @@ public final class VendorDtos {
             BookingMode bookingMode,
             @Min(10) @Max(100) Integer depositPct,
             CancellationPolicy cancellationPolicy,
+            Boolean allowSameDay,
             UUID coverMediaId,
             Integer sort) {}
 
@@ -88,7 +89,7 @@ public final class VendorDtos {
             Integer minGuests, Integer maxGuests, Integer durationMinutes,
             String whatsIncludedMd, String whatsExcludedMd, BookingMode bookingMode,
             int depositPct, CancellationPolicy cancellationPolicy, PackageStatus status,
-            UUID coverMediaId, String coverUrl, int sort) {}
+            boolean allowSameDay, long version, UUID coverMediaId, String coverUrl, int sort) {}
 
     public record AddOnRequest(UUID packageId,
             @NotBlank @Size(min = 2, max = 160) String title,

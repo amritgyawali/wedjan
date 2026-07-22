@@ -266,7 +266,7 @@ public class DiscoveryService {
         try { categoryName = jdbc.queryForObject("SELECT name FROM categories WHERE slug=? AND is_active", String.class, categorySlug); }
         catch (EmptyResultDataAccessException ex) { throw notFound("Category landing page"); }
         List<VendorCard> vendors = searchService.search(null, categorySlug, city, null, null, null,
-                null, null, null, List.of(), null, DiscoveryDtos.SearchSort.RELEVANCE,
+                null, null, null, List.of(), null, null, DiscoveryDtos.SearchSort.RELEVANCE,
                 null, null, "seo").items().stream()
                 .filter(v -> v.country().equalsIgnoreCase(country)).toList();
         LandingStats stats = jdbc.queryForObject("""

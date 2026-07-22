@@ -10,7 +10,7 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
 | 1 Foundation | ✅ | 2026-07-15 | 2026-07-15 | phase-1-complete | Merged + tagged (owner accepted). Deferred: Railway/Vercel deploys (accounts pending), mobile device run (P13) |
 | 2 Vendor supply | ✅ | 2026-07-15 | 2026-07-15 | phase-2-complete | Built + locally verified on `feat/phase-2-vendor-supply`; tag after merge/owner acceptance |
 | 3 Discovery/AEO | ✅ | 2026-07-15 | 2026-07-15 | phase-3-complete | Built + fully verified on `feat/phase-3-discovery-aeo`; tag after owner acceptance |
-| 4 Booking engine | ☐ | | | phase-4-complete | |
+| 4 Booking engine | ✅ | 2026-07-22 | 2026-07-22 | phase-4-complete | Built + verified on `feat/phase-4-booking-engine`; tag after owner acceptance |
 | 5 Payments/Escrow | ☐ | | | phase-5-complete | |
 | 6 Leads/Messaging | ☐ | | | phase-6-complete | |
 | 7 Trust/Merit ★launch | ☐ | | | phase-7-complete | |
@@ -93,6 +93,27 @@ what exists vs. what is stubbed. Rules and workflow: [06-build-playbook.md](06-b
   route into live search, inspiration, auth, and vendor onboarding.
 - **Phase 3 mobile** — native Explore and Inspiration tabs with filters, cursor loading, vendor and
   showcase details, confirmed team credits, and favorites; shared generated OpenAPI client parity.
+- **Phase 4 availability** — Flyway V4 adds DATE/SLOT vendor modes, weekly rules, exception
+  overrides, and a `get_availability` function deriving per-date AVAILABLE/LIMITED/BOOKED/
+  BLACKED_OUT from confirmed bookings plus live holds. Vendors edit month calendars and bulk
+  blackouts; customers read a public cached availability endpoint.
+- **Phase 4 booking aggregate** — human-readable codes, full price/terms snapshots, the twelve-state
+  machine with explicit legal-transition map (illegal → `BOOKING_INVALID_TRANSITION`), append-only
+  `booking_events` protected by a mutation-blocking trigger, and single mutual-consent reschedule.
+  Double-booking is refused by the database: capacity-slot unique indexes in DATE mode and GiST
+  `tstzrange` exclusion constraints in SLOT mode, mirrored onto 15-minute checkout holds.
+- **Phase 4 rules** — cancellation policy engine returns a `RefundCalculation` (Phase 5 executes it)
+  with FLEXIBLE/MODERATE/STRICT tables, inclusive named boundaries (ADR-018), and always-100%
+  vendor-fault refunds; 24h vendor SLA on requests and 24h customer payment windows; scheduler
+  drives CONFIRMED→IN_PROGRESS→COMPLETED and the 48h dispute window.
+- **Phase 4 iCalendar** — hourly ICS pull writes source-tagged blackout exceptions (folded lines,
+  all-day + timed events, RRULE/RDATE/EXDATE, vendor-timezone conversion), degraded-sync status
+  retains last-good data, and each vendor gets a rotatable secret-token export feed (ADR-021).
+- **Phase 4 surfaces** — search `date` filter now excludes truly unavailable vendors and cards show
+  real next-available dates; web has customer booking widget with live pricing/refund preview,
+  my-bookings list/detail with status stepper, vendor booking inbox with SLA countdowns and
+  calendar screen; mobile has the vendor booking widget, bookings list/detail, and availability.
+  Payment confirmation is an explicitly non-production stub pending Phase 5 (ADR-019).
 
 ## What is stubbed / not started
 

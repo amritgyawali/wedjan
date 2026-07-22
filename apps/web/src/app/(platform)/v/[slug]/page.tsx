@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { VendorPublic } from "@wedjan/shared";
+import { BookingWidget } from "@/components/marketplace/booking/booking-widget";
 import { PublicActions } from "./public-actions";
 import styles from "./profile.module.css";
 
@@ -36,8 +37,8 @@ export default async function VendorProfilePage({ params }: { params: Promise<{ 
       {vendor.addOns?.length ? <section className={styles.section}><h2>Optional add-ons</h2><div className={styles.addOns}>{vendor.addOns.map((item) => <div className={styles.addOn} key={item.id}><strong>{item.title}</strong><span>+{formatPrice(item.priceCents, vendor.currency)}{priceSuffix(item.pricingModel)}</span></div>)}</div></section> : null}
       {vendor.faqs.length > 0 && <section className={styles.section}><h2>Frequently asked questions</h2>{vendor.faqs.map((faq) => <details className={styles.faq} key={faq.question}><summary>{faq.question}</summary><p>{faq.answerMd}</p></details>)}</section>}
       <div className={styles.reviews}><strong>New on wedjan</strong><span>Verified work first. Reviews appear after the first completed booking.</span></div></main>
-      <aside className={styles.aside}><div className={styles.sticky}><div className={styles.card}><h2>Service area</h2>{vendor.serviceAreas.map((area) => <div className={styles.area} key={area.id}><span className={styles.areaIcon}>●</span><div><strong>{area.city}, {area.country}</strong><span>{area.mode === "CITY_RADIUS" ? `Within ${area.radiusKm} km` : "Regional service"}{area.travelFeeCents ? ` · ${formatPrice(area.travelFeeCents, vendor.currency)} travel fee` : ""}</span></div></div>)}<div className={styles.map}>⌖</div></div><div className={styles.card}><h3>Transparent from first click</h3><p>Every package has a real price. No “price on request.”</p></div></div></aside></div>
-    <footer className={styles.footer}>Verified vendors. Visible prices. Protected booking arrives next.</footer><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />{faqJsonLd&&<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }} />}</div>;
+      <aside className={styles.aside}><div className={styles.sticky}><BookingWidget vendorSlug={vendor.slug} packages={vendor.packages} addOns={vendor.addOns ?? []}/><div className={styles.card}><h2>Service area</h2>{vendor.serviceAreas.map((area) => <div className={styles.area} key={area.id}><span className={styles.areaIcon}>●</span><div><strong>{area.city}, {area.country}</strong><span>{area.mode === "CITY_RADIUS" ? `Within ${area.radiusKm} km` : "Regional service"}{area.travelFeeCents ? ` · ${formatPrice(area.travelFeeCents, vendor.currency)} travel fee` : ""}</span></div></div>)}<div className={styles.map}>⌖</div></div><div className={styles.card}><h3>Transparent from first click</h3><p>Every package has a real price. No “price on request.”</p></div></div></aside></div>
+    <footer className={styles.footer}>Verified vendors. Visible prices. Protected booking from first click.</footer><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />{faqJsonLd&&<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }} />}</div>;
 }
 
 function formatPrice(cents: number, currency: string) { return new Intl.NumberFormat("en", { style: "currency", currency, maximumFractionDigits: 0 }).format(cents / 100); }
